@@ -8,9 +8,10 @@
 	heat_protection = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
 	flags_inv = HIDEGLOVES|HIDESHOES|HIDEJUMPSUIT
-	max_heat_protection_temperature = SPACE_SUIT_MAX_HEAT_PROTECITON_TEMPERATURE
+	max_heat_protection_temperature = SPACE_SUIT_MAX_HEAT_PROTECTION_TEMPERATURE
 	species_restricted = list("Plasmaman")
-	flags = FPRINT | TABLEPASS | STOPSPRESSUREDMAGE | PLASMAGUARD
+	flags = FPRINT  | PLASMAGUARD
+	pressure_resistance = 40 * ONE_ATMOSPHERE //we can't change, so some resistance is needed
 
 	icon_state = "plasmaman_suit"
 	item_state = "plasmaman_suit"
@@ -19,10 +20,10 @@
 	var/extinguish_cooldown=10 SECONDS
 	var/extinguishes_left=10 // Yeah yeah, reagents, blah blah blah.  This should be simple.
 
-/obj/item/clothing/suit/space/plasmaman/examine()
-	set src in view()
+/obj/item/clothing/suit/space/plasmaman/examine(mob/user)
 	..()
-	usr << "There are [extinguishes_left] extinguisher canisters left in this suit."
+	user << "<span class='info'>There are [extinguishes_left] extinguisher canisters left in this suit.</span>"
+
 /obj/item/clothing/suit/space/plasmaman/proc/Extinguish(var/mob/user)
 	var/mob/living/carbon/human/H=user
 	if(extinguishes_left)
@@ -35,7 +36,8 @@
 		H.ExtinguishMob()
 
 /obj/item/clothing/head/helmet/space/plasmaman
-	flags = FPRINT | TABLEPASS | HEADCOVERSEYES | BLOCKHAIR | STOPSPRESSUREDMAGE | PLASMAGUARD
+	flags = FPRINT | PLASMAGUARD
+	pressure_resistance = 40 * ONE_ATMOSPHERE
 	species_restricted = list("Plasmaman")
 
 	icon_state = "plasmaman_helmet0"

@@ -24,42 +24,11 @@
 	regenerate_icons()
 	..()
 
-//This is fine, works the same as a human
-/mob/living/carbon/alien/larva/Bump(atom/movable/AM as mob|obj, yes)
-
-	spawn(0)
-		if((!(yes) || now_pushing))
-			return
-		now_pushing = 1
-		if(ismob(AM))
-			var/mob/tmob = AM
-			if(istype(tmob, /mob/living/carbon/human) && (M_FAT in tmob.mutations))
-				if(prob(70))
-					src << "<span class='danger'>You fail to push [tmob]'s fat ass out of the way.</span>"
-					now_pushing = 0
-					return
-				if(!(tmob.status_flags & CANPUSH))
-					now_pushing = 0
-					return
-			tmob.LAssailant = src
-
-		now_pushing = 0
-		..()
-		if (!(istype(AM, /atom/movable)))
-			return
-		if (!(now_pushing))
-			now_pushing = 1
-			if (!(AM.anchored))
-				var/t = get_dir(src, AM)
-				step(AM, t)
-			now_pushing = null
-		return
-	return
-
 //This needs to be fixed
 /mob/living/carbon/alien/larva/Stat()
 	..()
-	stat(null, "Progress: [amount_grown]/[max_grown]")
+	if(statpanel("Status"))
+		stat(null, "Progress: [amount_grown]/[max_grown]")
 
 /mob/living/carbon/alien/larva/adjustToxLoss(amount)
 	if(stat != DEAD)
@@ -164,7 +133,7 @@
 
 	switch(M.a_intent)
 
-		if("help")
+		if(I_HELP)
 			help_shake_act(M)
 		else
 			if(istype(wear_mask, /obj/item/clothing/mask/muzzle))
@@ -216,7 +185,7 @@
 	if(M.gloves && istype(M.gloves,/obj/item/clothing/gloves))
 		var/obj/item/clothing/gloves/G = M.gloves
 		if(G.cell)
-			if(M.a_intent == "hurt")//Stungloves. Any contact will stun the alien.
+			if(M.a_intent == I_HURT)//Stungloves. Any contact will stun the alien.
 				if(G.cell.charge >= 2500)
 					G.cell.use(2500)
 
@@ -233,7 +202,7 @@
 
 	switch(M.a_intent)
 
-		if("help")
+		if(I_HELP)
 			if(health > 0)
 				help_shake_act(M)
 			else
@@ -252,7 +221,7 @@
 						O.process()
 						return
 
-		if("grab")
+		if(I_GRAB)
 			if(M == src)
 				return
 			var/obj/item/weapon/grab/G = new /obj/item/weapon/grab( M, src )
@@ -302,7 +271,7 @@
 
 	switch(M.a_intent)
 
-		if("help")
+		if(I_HELP)
 			sleeping = max(0,sleeping-5)
 			resting = 0
 			AdjustParalysis(-3)

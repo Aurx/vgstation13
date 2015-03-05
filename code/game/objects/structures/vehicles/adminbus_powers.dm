@@ -197,7 +197,7 @@
 	flick("icon_massrejuv-push",bususer.gui_icons.adminbus_massrejuv)
 
 	for(var/mob/living/M in orange(src,3))
-		M.revive()
+		M.revive(1)
 		M << "<span class='notice'>THE ADMINBUS IS LOVE. THE ADMINBUS IS LIFE.</span>"
 		sleep(2)
 	update_rearview()
@@ -497,7 +497,7 @@
 		if(istype(S,/obj/item/weapon/shard/plasma))
 			new/obj/item/stack/sheet/glass/plasmaglass(S.loc)
 		else
-			new/obj/item/stack/sheet/glass(S.loc)
+			new/obj/item/stack/sheet/glass/glass(S.loc)
 		qdel(S)
 
 /obj/structure/stool/bed/chair/vehicle/adminbus/proc/Teleportation(mob/bususer)

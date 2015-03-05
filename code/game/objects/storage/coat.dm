@@ -152,10 +152,6 @@
 	add_fingerprint(user)
 	show_to(user)
 
-
-/obj/item/weapon/storage/dropped(mob/user as mob)
-	return
-
 /obj/item/clothing/suit/storage/MouseDrop(atom/over_object)
 	if(ishuman(usr))
 		var/mob/living/carbon/human/M = usr
@@ -221,9 +217,10 @@
 		for(var/obj/O in contents)
 			O.emp_act(severity)
 	..()
-
+/*
 /obj/item/clothing/suit/hear_talk(mob/M, var/msg)
 	for (var/atom/A in src)
 		if(istype(A,/obj/))
 			var/obj/O = A
 			O.hear_talk(M, msg)
+*/

@@ -16,7 +16,10 @@
 	..()
 	if(src.z != map.zMainStation)
 		var/area/A = src.areaMaster
-
+		if(!A)
+			A = get_area(src)
+		if(!A)
+			return
 		name = "[A.general_area_name] Alert Computer"
 		general_area_name = A.general_area_name
 

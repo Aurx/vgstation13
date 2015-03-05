@@ -1,6 +1,6 @@
 /obj/machinery/meter
 	name = "meter"
-	desc = "It measures something."
+	desc = "A gas flow meter."
 	icon = 'icons/obj/meter.dmi'
 	icon_state = "meterX"
 	var/obj/machinery/atmospherics/pipe/target = null
@@ -26,8 +26,8 @@
 		icon_state = "meterX"
 		// Pop the meter off when the pipe we're attached to croaks.
 		new /obj/item/pipe_meter(src.loc)
-		spawn(0) del(src)
-		return 0
+		spawn(0) qdel(src)
+		return PROCESS_KILL
 
 	if(stat & (BROKEN|NOPOWER))
 		icon_state = "meter0"
@@ -40,8 +40,8 @@
 		icon_state = "meterX"
 		// Pop the meter off when the environment we're attached to croaks.
 		new /obj/item/pipe_meter(src.loc)
-		spawn(0) del(src)
-		return 0
+		spawn(0) qdel(src)
+		return PROCESS_KILL
 
 	var/env_pressure = environment.return_pressure()
 	if(env_pressure <= 0.15*ONE_ATMOSPHERE)
@@ -100,12 +100,9 @@
 		t += "The connect error light is blinking."
 	return t
 
-/obj/machinery/meter/examine()
-	set src in view(3)
-
-	var/t = "A gas flow meter. "
-	t += status()
-	usr << t
+/obj/machinery/meter/examine(mob/user)
+	..()
+	attack_hand(user)
 
 /obj/machinery/meter/attack_ai(var/mob/user)
 	attack_hand(user)
@@ -122,7 +119,7 @@
 	if (get_dist(usr, src) <= 3 || istype(usr, /mob/living/silicon/ai) || istype(usr, /mob/dead))
 		t += status()
 	else
-		usr << "\blue <B>You are too far away.</B>"
+		usr << "<span class='notice'><B>You are too far away.</B></span>"
 		return 1
 
 	usr << t
@@ -145,14 +142,14 @@
 		return ..()
 
 	playsound(get_turf(src), 'sound/items/Ratchet.ogg', 50, 1)
-	user << "\blue You begin to unfasten \the [src]..."
+	user << "<span class='notice'>You begin to unfasten \the [src]...</span>"
 	if (do_after(user, 40))
 		user.visible_message( \
-			"[user] unfastens \the [src].", \
-			"\blue You have unfastened \the [src].", \
+			"[user] unfastens \the [src].</span>", \
+			"<span class='notice'>You have unfastened \the [src].</span>", \
 			"You hear ratchet.")
 		new /obj/item/pipe_meter(src.loc)
-		del(src)
+		qdel(src)
 
 // TURF METER - REPORTS A TILE'S AIR CONTENTS
 

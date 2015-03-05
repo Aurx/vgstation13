@@ -43,7 +43,7 @@
 
 
 /obj/item/device/assembly/infra/update_icon()
-	overlays.Cut()
+	overlays.len = 0
 	attached_overlays = list()
 	if(on)
 		overlays += "infrared_on"
@@ -60,14 +60,14 @@
 		return
 	if(beam || !secured) return
 	var/turf/T = null
-	if(istype(loc,/turf))
+	if(isturf(loc))
 		T = loc
 	else if (holder)
 		if (istype(holder.loc,/turf))
 			T = holder.loc
-		else if (istype(holder.loc.loc,/turf)) //for onetankbombs and other tertiary builds with assemblies
+		else if (isturf(holder.loc.loc)) //for onetankbombs and other tertiary builds with assemblies
 			T = holder.loc.loc
-	else if(istype(loc,/obj/item/weapon/grenade) && istype(loc.loc,/turf))
+	else if(istype(loc,/obj/item/weapon/grenade) && isturf(loc.loc))
 		T = loc.loc
 	if(T)
 		if(!beam)
@@ -171,7 +171,7 @@
 	var/visible = 0.0
 	var/left = null
 	anchored = 1.0
-	flags = TABLEPASS
+	flags = 0
 
 	var/obj/item/device/assembly/infra/assembly
 

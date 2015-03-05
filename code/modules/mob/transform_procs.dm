@@ -67,14 +67,13 @@
 		del(t)
 
 	var/mob/living/simple_animal/hostile/retaliate/cluwne/new_mob = new (src.loc)
-	new_mob.universal_speak = 1
 	new_mob.gender=src.gender
 	new_mob.name = pick(clown_names)
 	new_mob.real_name = new_mob.name
 	new_mob.mutations += M_CLUMSY
 	new_mob.mutations += M_FAT
 	new_mob.setBrainLoss(100)
-	new_mob.a_intent = "hurt"
+	new_mob.a_intent = I_HURT
 	new_mob.key = key
 
 	new_mob << "<span class='sinister'>Instantly, what was your clothes fall off, and are replaced with a mockery of all that is clowning; Disgusting-looking garb that the foulest of creatures would be afraid of wearing. Your very face begins to shape, mold, into something truely disgusting. A mask made of flesh. Your body is feeling the worst pain it has ever felt. As you think it cannot get any worse, one of your arms turns into a horrific meld of flesh and plastic, making a limb made entirely of bike horns.</span>"
@@ -82,7 +81,7 @@
 	new_mob.say("HONK!")
 	spawn(0)//To prevent the proc from returning null.
 		del(src)
-	return
+	return new_mob
 
 /mob/new_player/AIize()
 	spawning = 1
@@ -184,7 +183,7 @@
 	for(var/t in organs)
 		del(t)
 
-	var/mob/living/silicon/robot/O = new /mob/living/silicon/robot( loc )
+	var/mob/living/silicon/robot/O = new /mob/living/silicon/robot(get_turf(src))
 
 	// cyborgs produced by Robotize get an automatic power cell
 	O.cell = new(O)
@@ -287,13 +286,13 @@
 		if("Drone")
 			new_xeno = new /mob/living/carbon/alien/humanoid/drone(loc)
 
-	new_xeno.a_intent = "hurt"
+	new_xeno.a_intent = I_HURT
 	new_xeno.key = key
 
 	new_xeno << "<B>You are now an alien.</B>"
 	spawn(0)//To prevent the proc from returning null.
 		del(src)
-	return
+	return new_xeno
 
 /mob/living/carbon/human/proc/slimeize(adult as num, reproduce as num)
 	if (monkeyizing)
@@ -323,13 +322,13 @@
 			new_slime = new /mob/living/carbon/slime/adult(loc)
 		else
 			new_slime = new /mob/living/carbon/slime(loc)
-	new_slime.a_intent = "hurt"
+	new_slime.a_intent = I_HURT
 	new_slime.key = key
 
 	new_slime << "<B>You are now a slime. Skreee!</B>"
 	spawn(0)//To prevent the proc from returning null.
 		del(src)
-	return
+	return new_slime
 
 /mob/living/carbon/human/proc/corgize()
 	if (monkeyizing)
@@ -345,13 +344,13 @@
 		del(t)
 
 	var/mob/living/simple_animal/corgi/new_corgi = new /mob/living/simple_animal/corgi (loc)
-	new_corgi.a_intent = "hurt"
+	new_corgi.a_intent = I_HURT
 	new_corgi.key = key
 
 	new_corgi << "<B>You are now a Corgi. Yap Yap!</B>"
 	spawn(0)//To prevent the proc from returning null.
 		del(src)
-	return
+	return new_corgi
 
 /mob/living/carbon/human/Animalize()
 
@@ -379,13 +378,13 @@
 	var/mob/new_mob = new mobpath(src.loc)
 
 	new_mob.key = key
-	new_mob.a_intent = "hurt"
+	new_mob.a_intent = I_HURT
 
 
 	new_mob << "You suddenly feel more... animalistic."
 	spawn()
 		del(src)
-	return
+	return new_mob
 
 /mob/proc/Animalize()
 
@@ -399,10 +398,12 @@
 	var/mob/new_mob = new mobpath(src.loc)
 
 	new_mob.key = key
-	new_mob.a_intent = "hurt"
+	new_mob.a_intent = I_HURT
 	new_mob << "You feel more... animalistic"
 
-	del(src)
+	spawn()
+		del(src)
+	return new_mob
 
 /* Certain mob types have problems and should not be allowed to be controlled by players.
  *

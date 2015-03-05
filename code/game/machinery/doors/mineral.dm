@@ -8,7 +8,7 @@
 	icon = 'icons/obj/doors/mineral.dmi'
 	prefix = "metal" //Corresponds to the mineral type
 
-	var/soundeffect = 'sound/effects/stonedoor_openclose.ogg'
+	soundeffect = 'sound/effects/stonedoor_openclose.ogg'
 	var/hardness = 3
 	var/oreAmount = 7
 
@@ -91,14 +91,16 @@
 	return
 
 /obj/machinery/door/mineral/proc/Dismantle(devastated = 0)
-    var/obj/item/stack/ore
-    if(src.prefix == "metal") ore = /obj/item/stack/sheet/metal
-    else ore = text2path("/obj/item/stack/sheet/mineral/[prefix]")
-    ore.amount = oreAmount
-    if(devastated) ore.amount -= 2
-    new ore(get_turf(src))
-    qdel(src)
-    return
+	var/obj/item/stack/ore
+	if(src.prefix == "metal")
+		ore = getFromPool(/obj/item/stack/sheet/metal, get_turf(src))
+	else
+		var/P = text2path("/obj/item/stack/sheet/mineral/[prefix]")
+		ore = new P(get_turf(src))
+	ore.amount = oreAmount
+	if(devastated) ore.amount -= 2
+	qdel(src)
+	return
 
 /obj/machinery/door/mineral/ex_act(severity = 1)
 	switch(severity)
@@ -145,18 +147,18 @@
 	prefix = "plasma"
 	hardness = 4
 
-/obj/machinery/door/mineral/transparent/attackby(obj/item/weapon/W as obj, mob/user as mob)
+/obj/machinery/door/mineral/transparent/plasma/attackby(obj/item/weapon/W as obj, mob/user as mob)
 	if(istype(W,/obj/item/weapon/weldingtool))
 		var/obj/item/weapon/weldingtool/WT = W
 		if(WT.remove_fuel(0, user))
 			TemperatureAct(100)
 	return ..()
 
-/obj/machinery/door/mineral/transparent/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
+/obj/machinery/door/mineral/transparent/plasma/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	if(exposed_temperature > 300)
 		TemperatureAct(exposed_temperature)
 
-/obj/machinery/door/mineral/transparent/proc/TemperatureAct(temperature)
+/obj/machinery/door/mineral/transparent/plasma/proc/TemperatureAct(temperature)
 	for(var/turf/simulated/floor/target_tile in range(2,loc))
 
 		var/datum/gas_mixture/napalm = new //Napalm? Whelp. There should be a better way for this.

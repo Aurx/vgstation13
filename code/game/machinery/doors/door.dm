@@ -46,6 +46,8 @@
 	// turf animation
 	var/atom/movable/overlay/c_animation = null
 
+	var/soundeffect = 'sound/machines/airlock.ogg'
+
 /obj/machinery/door/Bumped(atom/AM)
 	if (ismob(AM))
 		var/mob/M = AM
@@ -76,7 +78,16 @@
 		if (density)
 			if (mecha.occupant && !operating && (allowed(mecha.occupant) || check_access_list(mecha.operation_req_access)))
 				open()
-			else
+			else if(!operating)
+				door_animate("deny")
+
+	if (istype(AM, /obj/structure/stool/bed/chair/vehicle))
+		var/obj/structure/stool/bed/chair/vehicle/vehicle = AM
+
+		if (density)
+			if (vehicle.buckled_mob && !operating && allowed(vehicle.buckled_mob))
+				open()
+			else if(!operating)
 				door_animate("deny")
 
 		return
@@ -93,9 +104,9 @@
 	if(!requiresID())
 		user = null
 
-	if(allowed(user) && !operating)
+	if(allowed(user))
 		open()
-	else
+	else if(!operating)
 		door_animate("deny")
 
 	return

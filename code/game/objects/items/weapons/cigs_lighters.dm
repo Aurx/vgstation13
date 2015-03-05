@@ -22,6 +22,7 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 	icon_state = "match_unlit"
 	var/lit = 0
 	var/smoketime = 5
+	heat_production = 1000
 	w_class = 1.0
 	origin_tech = "materials=1"
 	attack_verb = list("burnt", "singed")
@@ -48,6 +49,11 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 		desc = "A match. This one has seen better days."
 	return ..()
 
+/obj/item/weapon/match/is_hot()
+	if(lit)
+		return heat_production
+	return 0
+
 /obj/item/weapon/match/attack(mob/living/carbon/M as mob, mob/living/carbon/user as mob)
 	if(istype(M.wear_mask, /obj/item/clothing/mask/cigarette) && user.zone_sel.selecting == "mouth" && lit)
 		var/obj/item/clothing/mask/cigarette/cig = M.wear_mask
@@ -57,6 +63,26 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 			cig.light("<span class='notice'>[user] holds the [name] out for [M], and lights the [cig.name].</span>")
 	else
 		return ..()
+
+/obj/item/weapon/match/strike_anywhere
+	name = "strike-anywhere match"
+	smoketime = 10
+
+/obj/item/weapon/match/strike_anywhere/afterattack(atom/target, mob/user, prox_flags)
+	if(!prox_flags == 1)
+		return
+
+	if(!(get_turf(src) == get_turf(user)))
+		return
+
+	if(lit)
+		return
+
+	if(istype(target, /obj) || istype(target, /turf))
+		lit = 1
+		icon_state = "match_lit"
+		processing_objects.Add(src)
+		user << "You strike \the [src] on \the [target]."
 
 //////////////////
 //FINE SMOKABLES//
@@ -70,6 +96,7 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 	w_class = 1
 	body_parts_covered = null
 	attack_verb = list("burnt", "singed")
+	heat_production = 1000
 	var/lit = 0
 	var/icon_on = "cigon"
 	var/overlay_on = "ciglit"
@@ -98,6 +125,11 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 			user.SetLuminosity(user.luminosity - lit_brightness)
 		else if(isturf(loc))
 			SetLuminosity(0)
+
+/obj/item/clothing/mask/cigarette/is_hot()
+	if(lit)
+		return heat_production
+	return 0
 
 /obj/item/clothing/mask/cigarette/attackby(obj/item/weapon/W as obj, mob/user as mob)
 	..()
@@ -188,7 +220,7 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 
 		reagents.handle_reactions()
 		// This ain't ready yet.
-		//overlays.Cut()
+		//overlays.len = 0
 		//overlays += image('icons/mob/mask.dmi',overlay_on,LIGHTING_LAYER+1)
 		icon_state = icon_on
 		item_state = icon_on
@@ -281,7 +313,7 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 	icon_on = "cigaron"
 	icon_off = "cigaroff"
 	overlay_on = "cigarlit"
-	flags = FPRINT|TABLEPASS
+	flags = FPRINT
 	type_butt = /obj/item/weapon/cigbutt/cigarbutt
 	throw_speed = 0.5
 	item_state = "cigaroff"
@@ -400,7 +432,7 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 /obj/item/clothing/mask/cigarette/pipe
 	name = "smoking pipe"
 	desc = "A pipe, for smoking. Probably made of meershaum or something."
-	flags = FPRINT|TABLEPASS
+	flags = FPRINT
 	icon_state = "pipeoff"
 	item_state = "pipeoff"
 	icon_on = "pipeon"  //Note - these are in masks.dmi
@@ -479,7 +511,9 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 	var/icon_off = "lighter-g"
 	w_class = 1
 	throwforce = 4
-	flags = TABLEPASS | CONDUCT
+	flags = 0
+	siemens_coefficient = 1
+	heat_production = 1500
 	slot_flags = SLOT_BELT
 	attack_verb = list("burnt", "singed")
 	var/lit = 0
@@ -531,6 +565,11 @@ CIGARETTE PACKETS ARE IN FANCY.DM
 	else
 		return ..()
 	return
+
+/obj/item/weapon/lighter/is_hot()
+	if(lit)
+		return heat_production
+	return 0
 
 
 /obj/item/weapon/lighter/attack(mob/living/carbon/M as mob, mob/living/carbon/user as mob)

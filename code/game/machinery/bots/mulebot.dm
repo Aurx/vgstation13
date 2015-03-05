@@ -88,8 +88,6 @@ var/global/mulebot_count = 0
 		name = "\improper Mulebot ([suffix])"
 
 
-	verbs -= /atom/movable/verb/pull
-
 	can_load = list(
 		/obj/structure/closet/crate,
 		/obj/structure/vendomatpack,
@@ -98,6 +96,9 @@ var/global/mulebot_count = 0
 		)
 
 /obj/machinery/bot/mulebot/Destroy()
+	if(radio_controller)
+		radio_controller.remove_object(src, control_freq)
+		radio_controller.remove_object(src, beacon_freq)
 	if(wires)
 		wires.Destroy()
 		wires = null
@@ -462,7 +463,7 @@ var/global/mulebot_count = 0
 		return
 
 	mode = 1
-	overlays.Cut()
+	overlays.len = 0
 
 	load.loc = src.loc
 	load.pixel_y -= 9
@@ -779,7 +780,7 @@ var/global/mulebot_count = 0
 
 /obj/machinery/bot/mulebot/receive_signal(datum/signal/signal)
 
-	if(!on)
+	if(!on || !wires)
 		return
 
 	/*
@@ -911,7 +912,7 @@ var/global/mulebot_count = 0
 	new /obj/item/device/assembly/prox_sensor(Tsec)
 	new /obj/item/stack/rods(Tsec)
 	new /obj/item/stack/rods(Tsec)
-	new /obj/item/weapon/cable_coil/cut(Tsec)
+	new /obj/item/stack/cable_coil/cut(Tsec)
 	if (cell)
 		cell.loc = Tsec
 		cell.update_icon()
@@ -921,6 +922,7 @@ var/global/mulebot_count = 0
 	s.set_up(3, 1, src)
 	s.start()
 
-	new /obj/effect/decal/cleanable/blood/oil(src.loc)
+	var/obj/effect/decal/cleanable/blood/oil/O = getFromPool(/obj/effect/decal/cleanable/blood/oil, src.loc)
+	O.New(O.loc)
 	unload(0)
-	del(src)
+	qdel(src)

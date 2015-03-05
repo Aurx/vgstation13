@@ -1,3 +1,6 @@
+var/global/list/del_profiling = list()
+var/global/list/gdel_profiling = list()
+var/global/list/ghdel_profiling = list()
 /atom
 	layer = 2
 
@@ -16,6 +19,7 @@
 	var/pass_flags = 0
 	var/throwpass = 0
 	var/germ_level = 0 // The higher the germ level, the more germ on the atom.
+	var/pressure_resistance = ONE_ATMOSPHERE
 
 	///Chemistry.
 	var/datum/reagents/reagents = null
@@ -82,9 +86,12 @@
 		type_instances[type] = 0
 		WARNING("Type [type] does not inherit /atom/New().  Please ensure ..() is called, or that the type calls AddToProfiler().")
 
-/atom/Destroy()
-	// Only call when we're actually deleted.
+/atom/Del()
 	DeleteFromProfiler()
+	..()
+
+/atom/Destroy()
+	SetOpacity(0)
 
 	if(reagents)
 		reagents.Destroy()
@@ -264,7 +271,7 @@ its easier to just keep the beam vertical.
 			X.pixel_y=Pixel_y
 			var/turf/TT = get_turf(X.loc)
 			if(TT.density)
-				del(X)
+				qdel(X)
 				break
 			for(var/obj/O in TT)
 				if(!O.CanPass(light))
@@ -274,30 +281,37 @@ its easier to just keep the beam vertical.
 					broken = 1
 					break
 			if(broken)
-				del(X)
+				qdel(X)
 				break
 		sleep(3)	//Changing this to a lower value will cause the beam to follow more smoothly with movement, but it will also be more laggy.
 					//I've found that 3 ticks provided a nice balance for my use.
-	for(var/obj/effect/overlay/beam/O in orange(10,src)) if(O.BeamSource==src) del O
+	for(var/obj/effect/overlay/beam/O in orange(10,src)) if(O.BeamSource==src) qdel(O)
 
-
+//Woo hoo. Overtime
 //All atoms
-/atom/verb/examine()
-	set name = "Examine"
-	set category = "IC"
-	set src in oview(12)	//make it work from farther away
+/atom/proc/examine(mob/user, var/size = "")
+	//This reformat names to get a/an properly working on item descriptions when they are bloody
+	var/f_name = "\a [src]."
+	if(src.blood_DNA)
+		if(gender == PLURAL)
+			f_name = "some "
+		else
+			f_name = "a "
+		f_name += "<span class='danger'>blood-stained</span> [name]!"
 
-	if (!( usr ))
-		return
+	user << "\icon[src] That's [f_name]" + size
+	if(desc)
+		user << desc
 
-	usr.face_atom(src)
-	usr << "That's \a [src]." //changed to "That's" from "This is" because "This is some metal sheets" sounds dumb compared to "That's some metal sheets" ~Carn
-	usr << desc
-
+	if(reagents && is_open_container()) //is_open_container() isn't really the right proc for this, but w/e
+		user << "It contains:"
+		if(reagents.reagent_list.len)
+			for(var/datum/reagent/R in reagents.reagent_list)
+				user << "<span class='info'>[R.volume] units of [R.name]</span>"
+		else
+			user << "<span class='info'>Nothing.</span>"
 	if(on_fire)
-		usr << "\red OH SHIT! IT'S ON FIRE!"
-	// *****RM
-	//usr << "[name]: Dn:[density] dir:[dir] cont:[contents] icon:[icon] is:[icon_state] loc:[loc]"
+		user << "<span class='danger'>OH SHIT! IT'S ON FIRE!</span>"
 	return
 
 // /atom/proc/MouseDrop_T()
@@ -383,6 +397,15 @@ its easier to just keep the beam vertical.
 /atom/proc/hand_m(mob/user as mob)			//slime - restrained
 	return
 */
+
+/atom/proc/singularity_act()
+	return
+
+/atom/proc/singularity_pull()
+	return
+
+/atom/proc/emag_act()
+	return
 
 /atom/proc/hitby(atom/movable/AM as mob|obj)
 	return

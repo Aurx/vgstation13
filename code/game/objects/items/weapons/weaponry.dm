@@ -3,7 +3,7 @@
 	name = "banhammer"
 	icon = 'icons/obj/items.dmi'
 	icon_state = "toyhammer"
-	flags = FPRINT | TABLEPASS
+	flags = FPRINT
 	slot_flags = SLOT_BELT
 	throwforce = 0
 	w_class = 1.0
@@ -20,7 +20,7 @@
 	desc = "A rod of pure obsidian, its very presence disrupts and dampens the powers of paranormal phenomenae."
 	icon_state = "nullrod"
 	item_state = "nullrod"
-	flags = FPRINT | TABLEPASS
+	flags = FPRINT
 	slot_flags = SLOT_BELT
 	force = 15
 	throw_speed = 1
@@ -61,6 +61,7 @@
 	..()
 
 /obj/item/weapon/nullrod/afterattack(atom/A, mob/user as mob)
+	user.delayNextAttack(8)
 	if (istype(A, /turf/simulated/floor))
 		user << "\blue You hit the floor with the [src]."
 		call(/obj/effect/rune/proc/revealrunes)(src)
@@ -70,7 +71,7 @@
 	desc = "This thing is so unspeakably shitty you are having a hard time even holding it."
 	icon_state = "sord"
 	item_state = "sord"
-	flags = FPRINT | TABLEPASS
+	flags = FPRINT
 	slot_flags = SLOT_BELT
 	force = 2
 	throwforce = 1
@@ -92,7 +93,8 @@
 	icon_state = "claymore"
 	item_state = "claymore"
 	hitsound = "sound/weapons/bloodyslice.ogg"
-	flags = FPRINT | TABLEPASS | CONDUCT
+	flags = FPRINT
+	siemens_coefficient = 1
 	slot_flags = SLOT_BELT
 	force = 40
 	throwforce = 10
@@ -120,7 +122,8 @@
 	icon_state = "katana"
 	item_state = "katana"
 	hitsound = "sound/weapons/bloodyslice.ogg"
-	flags = FPRINT | TABLEPASS | CONDUCT
+	flags = FPRINT
+	siemens_coefficient = 1
 	slot_flags = SLOT_BELT | SLOT_BACK
 	force = 40
 	throwforce = 10
@@ -140,7 +143,7 @@
 
 /obj/item/weapon/harpoon
 	name = "harpoon"
-	sharp = 1
+	sharpness = 1.2
 	desc = "Tharr she blows!"
 	icon_state = "harpoon"
 	item_state = "harpoon"
@@ -156,7 +159,8 @@ obj/item/weapon/wirerod
 	desc = "A rod with some wire wrapped around the top. It'd be easy to attach something to the top bit."
 	icon_state = "wiredrod"
 	item_state = "rods"
-	flags = FPRINT | TABLEPASS | CONDUCT
+	flags = FPRINT
+	siemens_coefficient = 1
 	force = 9
 	throwforce = 10
 	w_class = 3
@@ -167,7 +171,7 @@ obj/item/weapon/wirerod
 obj/item/weapon/wirerod/attackby(var/obj/item/I, mob/user as mob)
 	..()
 	if(istype(I, /obj/item/weapon/shard))
-		var/obj/item/weapon/twohanded/spear/S = new /obj/item/weapon/twohanded/spear
+		var/obj/item/weapon/spear/S = new /obj/item/weapon/spear
 
 		user.before_take_item(I)
 		user.before_take_item(src)

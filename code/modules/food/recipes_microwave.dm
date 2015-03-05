@@ -41,7 +41,7 @@
 
 /datum/recipe/plainburger
 	reagents = list("flour" = 5)
-	items = list(/obj/item/weapon/reagent_containers/food/snacks/meat)
+	items = list(/obj/item/weapon/reagent_containers/food/snacks/meat/monkey)
 	result = /obj/item/weapon/reagent_containers/food/snacks/monkeyburger
 
 /datum/recipe/appendixburger
@@ -267,6 +267,11 @@
 		/obj/item/weapon/ectoplasm
 		)
 	result = /obj/item/weapon/reagent_containers/food/snacks/muffin/booberry
+
+/datum/recipe/dindumuffin
+	reagents = list("nothing" = 5, "milk" = 5, "flour" = 5)
+	items = list(/obj/item/weapon/handcuffs)
+	result = /obj/item/weapon/reagent_containers/food/snacks/muffin/dindumuffin
 
 // Donk Pockets ////////////////////////////////////////////////
 
@@ -1033,9 +1038,9 @@
 
 // Coder Snacks ///////////////////////////////////////////////////////
 
-/datum/recipe/spagetti
+/datum/recipe/spaghetti
 	reagents = list("flour" = 5)
-	result= /obj/item/weapon/reagent_containers/food/snacks/spagetti
+	result= /obj/item/weapon/reagent_containers/food/snacks/spaghetti
 
 /datum/recipe/copypasta
 	items = list(
@@ -1046,35 +1051,35 @@
 
 // Pasta ///////////////////////////////////////////////////////
 
-/datum/recipe/boiledspagetti
+/datum/recipe/boiledspaghetti
 	reagents = list("water" = 5)
-	items = list(/obj/item/weapon/reagent_containers/food/snacks/spagetti)
-	result = /obj/item/weapon/reagent_containers/food/snacks/boiledspagetti
+	items = list(/obj/item/weapon/reagent_containers/food/snacks/spaghetti)
+	result = /obj/item/weapon/reagent_containers/food/snacks/boiledspaghetti
 
 /datum/recipe/pastatomato
 	reagents = list("water" = 5)
 	items = list(
-		/obj/item/weapon/reagent_containers/food/snacks/spagetti,
+		/obj/item/weapon/reagent_containers/food/snacks/spaghetti,
 		/obj/item/weapon/reagent_containers/food/snacks/grown/tomato,
 		/obj/item/weapon/reagent_containers/food/snacks/grown/tomato,
 		)
 	result = /obj/item/weapon/reagent_containers/food/snacks/pastatomato
 
-/datum/recipe/meatballspagetti
+/datum/recipe/meatballspaghetti
 	reagents = list("water" = 5)
 	items = list(
-		/obj/item/weapon/reagent_containers/food/snacks/spagetti,
+		/obj/item/weapon/reagent_containers/food/snacks/spaghetti,
 		/obj/item/weapon/reagent_containers/food/snacks/faggot,
 		/obj/item/weapon/reagent_containers/food/snacks/faggot,
 		)
-	result = /obj/item/weapon/reagent_containers/food/snacks/meatballspagetti
+	result = /obj/item/weapon/reagent_containers/food/snacks/meatballspaghetti
 
 // Salad ///////////////////////////////////////////////////////
 
 /datum/recipe/spesslaw
 	reagents = list("water" = 5)
 	items = list(
-		/obj/item/weapon/reagent_containers/food/snacks/spagetti,
+		/obj/item/weapon/reagent_containers/food/snacks/spaghetti,
 		/obj/item/weapon/reagent_containers/food/snacks/faggot,
 		/obj/item/weapon/reagent_containers/food/snacks/faggot,
 		/obj/item/weapon/reagent_containers/food/snacks/faggot,
@@ -1119,6 +1124,51 @@
 	var/obj/item/weapon/reagent_containers/food/snacks/validsalad/being_cooked = ..(container)
 	being_cooked.reagents.del_reagent("toxin")
 	return being_cooked
+// Curry ///////////////////////////////////////////////////////
+
+/datum/recipe/curry
+	reagents = list ("water" = 10)
+	items = list(
+		/obj/item/weapon/reagent_containers/food/snacks/rawchicken,
+		/obj/item/weapon/reagent_containers/food/snacks/rawchicken,
+		/obj/item/weapon/reagent_containers/food/snacks/grown/chili,
+		/obj/item/weapon/reagent_containers/food/snacks/grown/tomato,
+		/obj/item/weapon/reagent_containers/food/snacks/grown/tomato,
+		)
+	result = /obj/item/weapon/reagent_containers/food/snacks/curry
+
+/datum/recipe/vindaloo
+	reagents = list ("water" = 10, "capsaicin" = 5)
+	items = list(
+		/obj/item/weapon/reagent_containers/food/snacks/rawchicken,
+		/obj/item/weapon/reagent_containers/food/snacks/rawchicken,
+		/obj/item/weapon/reagent_containers/food/snacks/grown/chili,
+		/obj/item/weapon/reagent_containers/food/snacks/grown/chili,
+		/obj/item/weapon/reagent_containers/food/snacks/grown/tomato,
+		)
+	result = /obj/item/weapon/reagent_containers/food/snacks/curry/vindaloo
+
+/datum/recipe/lemoncurry
+	reagents = list ("water" = 10, "lemonjuice" = 5)
+	items = list(
+		/obj/item/weapon/reagent_containers/food/snacks/rawchicken,
+		/obj/item/weapon/reagent_containers/food/snacks/rawchicken,
+		/obj/item/weapon/reagent_containers/food/snacks/grown/lemon,
+		/obj/item/weapon/reagent_containers/food/snacks/grown/lemon,
+		/obj/item/weapon/reagent_containers/food/snacks/grown/lemon,
+		)
+	result = /obj/item/weapon/reagent_containers/food/snacks/curry/lemon
+
+/datum/recipe/xenocurry
+	reagents = list ("sacid" = 10)
+	items = list(
+		/obj/item/weapon/reagent_containers/food/snacks/xenomeat,
+		/obj/item/weapon/reagent_containers/food/snacks/xenomeat,
+		/obj/item/weapon/reagent_containers/food/snacks/grown/chili,
+		/obj/item/weapon/reagent_containers/food/snacks/grown/tomato,
+		/obj/item/weapon/reagent_containers/food/snacks/grown/tomato,
+		)
+	result = /obj/item/weapon/reagent_containers/food/snacks/curry/xeno
 
 // Misc ////////////////////////////////////////////////////////
 

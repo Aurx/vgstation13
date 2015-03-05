@@ -12,6 +12,7 @@
 	item_state = "syringe_0"
 	icon_state = "0"
 	amount_per_transfer_from_this = 5
+	sharpness = 1
 	possible_transfer_amounts = null //list(5,10,15)
 	volume = 15
 	g_amt = 1000
@@ -63,7 +64,7 @@
 		user << "\red This syringe is broken!"
 		return
 
-	if (user.a_intent == "hurt" && ismob(target))
+	if (user.a_intent == I_HURT && ismob(target))
 		if((M_CLUMSY in user.mutations) && prob(50))
 			target = user
 		syringestab(target, user)
@@ -210,10 +211,10 @@
 /obj/item/weapon/reagent_containers/syringe/update_icon()
 	if(mode == SYRINGE_BROKEN)
 		icon_state = "broken"
-		overlays.Cut()
+		overlays.len = 0
 		return
 	var/rounded_vol = round(reagents.total_volume,5)
-	overlays.Cut()
+	overlays.len = 0
 	if(ismob(loc))
 		var/injoverlay
 		switch(mode)

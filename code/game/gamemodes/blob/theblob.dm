@@ -7,7 +7,7 @@
 	density = 0
 	opacity = 0
 	anchored = 1
-	var/health = 30
+	var/health = 20
 	var/health_timestamp = 0
 	var/brute_resist = 4
 	var/fire_resist = 1
@@ -19,6 +19,10 @@
 
 /obj/effect/blob/New(loc)
 	blobs += src
+	var/datum/game_mode/blob/B
+	if(B)
+		if((blobs.len >= B.blobnukeposs) && prob(1))
+			B.stage(2)
 	src.dir = pick(1, 2, 4, 8)
 	src.update_icon()
 	..(loc)
@@ -98,7 +102,7 @@
 		return//Inf loop check
 
 	//Looking for another blob to pulse
-	var/list/dirs = list(1,2,4,8)
+	var/list/dirs = cardinal.Copy()
 	dirs.Remove(origin_dir)//Dont pulse the guy who pulsed us
 	for(var/i = 1 to 4)
 		if(!dirs.len)	break
@@ -124,7 +128,7 @@
 	if(istype(T, /turf/space) && prob(75))
 		return
 	if(!T)
-		var/list/dirs = list(1,2,4,8)
+		var/list/dirs = cardinal
 		for(var/i = 1 to 4)
 			var/dirn = pick(dirs)
 			dirs.Remove(dirn)
@@ -166,7 +170,7 @@
 
 
 /obj/effect/blob/attackby(var/obj/item/weapon/W, var/mob/user)
-	user.changeNext_move(10)
+	user.delayNextAttack(10)
 	playsound(get_turf(src), 'sound/effects/attackblob.ogg', 50, 1)
 	src.visible_message("\red <B>The [src.name] has been attacked with \the [W][(user ? " by [user]." : ".")]")
 	var/damage = 0
@@ -193,7 +197,7 @@
 	return
 
 /obj/effect/blob/proc/Delete()
-	del(src)
+	qdel(src)
 
 /obj/effect/blob/normal
 	icon_state = "blob"

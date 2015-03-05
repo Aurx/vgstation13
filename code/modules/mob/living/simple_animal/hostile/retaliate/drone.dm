@@ -15,7 +15,7 @@
 	response_harm = "hits the"
 	speak = list("ALERT.","Hostile-ile-ile entities dee-twhoooo-wected.","Threat parameterszzzz- szzet.","Bring sub-sub-sub-systems uuuup to combat alert alpha-a-a.")
 	emote_see = list("beeps menacingly","whirrs threateningly","scans its immediate vicinity")
-	a_intent = "hurt"
+	a_intent = I_HURT
 	stop_automated_movement_when_pulled = 0
 	health = 300
 	maxHealth = 300
@@ -25,7 +25,7 @@
 	environment_smash = 2
 	minimum_distance = 3
 	retreat_distance = 2
-	var/datum/effect/effect/system/ion_trail_follow/ion_trail
+	var/datum/effect/effect/system/trail/ion_trail
 	var/hostile_time = 0
 
 	//the drone randomly switches between hostile/retaliation only states because it's malfunctioning

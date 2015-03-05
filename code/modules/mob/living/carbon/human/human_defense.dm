@@ -68,10 +68,7 @@ emp_act
 		if(istype(C) && (C.body_parts_covered & def_zone.body_part)) // Is that body part being targeted covered?
 			siemens_coefficient *= C.siemens_coefficient
 
-
 	return siemens_coefficient
-
-
 
 /mob/living/carbon/human/proc/checkarmor(var/datum/organ/external/def_zone, var/type)
 	if(!type)	return 0
@@ -85,21 +82,23 @@ emp_act
 				protection += C.armor[type]
 	return protection
 
-/mob/living/carbon/human/proc/check_head_coverage(var/hidemask=0)
-	for(var/obj/item/clothing/C in get_all_slots())
-		if(!C) continue
-		if(C.body_parts_covered & HEAD && (hidemask==0 || C.flags_inv & hidemask))
-			return 1
-
-
 /mob/living/carbon/human/proc/check_body_part_coverage(var/body_part_flags=0)
 	if(!body_part_flags)
 		return 0
-	for(var/obj/item/clothing/C in get_all_slots())
+	for(var/obj/item/clothing/C in get_clothing_items())
 		if(!C) continue
 		if(C.body_parts_covered & body_part_flags)
 			return 1
 	return 0
+
+/mob/living/carbon/human/proc/get_body_part_coverage(var/body_part_flags=0)
+	if(!body_part_flags)
+		return null
+	for(var/obj/item/clothing/C in get_clothing_items())
+		if(!C) continue
+		if(C.body_parts_covered & body_part_flags)
+			return C
+	return null
 
 /mob/living/carbon/human/proc/check_shields(var/damage = 0, var/attack_text = "the attack")
 	if(l_hand && istype(l_hand, /obj/item/weapon))//Current base is the prob(50-d/3)
@@ -137,12 +136,6 @@ emp_act
 	for(var/obj/O in src)
 		if(!O)	continue
 		O.emp_act(severity)
-	if(istype(src.w_uniform, /obj/item/clothing/under))
-		var/obj/item/clothing/under/u = src.w_uniform
-		var/obj/item/clothing/tie/holster/h = u.hastie
-		if(h && istype(h))
-			if(h.holstered)
-				h.holstered.emp_act(severity)
 	for(var/datum/organ/external/O  in organs)
 		if(O.status & ORGAN_DESTROYED)	continue
 		O.emp_act(severity)
@@ -161,7 +154,7 @@ emp_act
 	if(!target_zone && !src.stat)
 		visible_message("\red <B>[user] misses [src] with \the [I]!")
 		return
-	if(istype(I, /obj/item/weapon/butch/meatcleaver) && src.stat == DEAD && user.a_intent == "hurt")
+	if(istype(I, /obj/item/weapon/kitchen/utensil/knife/large/butch/meatcleaver) && src.stat == DEAD && user.a_intent == I_HURT)
 		var/obj/item/weapon/reagent_containers/food/snacks/meat/human/newmeat = new /obj/item/weapon/reagent_containers/food/snacks/meat/human(get_turf(src.loc))
 		newmeat.name = src.real_name + newmeat.name
 		newmeat.subjectname = src.real_name
@@ -202,7 +195,7 @@ emp_act
 			affecting.sabotaged = 1
 		return
 
-	if(I.attack_verb && I.attack_verb.len)
+	if(istype(I.attack_verb, /list) && I.attack_verb.len)
 		visible_message("\red <B>[src] has been [pick(I.attack_verb)] in the [hit_area] with [I.name] by [user]!</B>")
 	else
 		visible_message("\red <B>[src] has been attacked in the [hit_area] with [I.name] by [user]!</B>")
@@ -211,7 +204,7 @@ emp_act
 	if(armor >= 2)	return 0
 	if(!I.force)	return 0
 
-	apply_damage(I.force, I.damtype, affecting, armor , is_sharp(I), I)
+	apply_damage(I.force, I.damtype, affecting, armor , I.is_sharp(), I)
 
 	var/bloody = 0
 	if(((I.damtype == BRUTE) || (I.damtype == HALLOSS)) && prob(25 + (I.force * 2)))
@@ -392,9 +385,9 @@ emp_act
 		if(!affecting)	return
 		if (istype(O, /obj/effect/immovablerod))
 			if(affecting.take_damage(101, 0))
-				UpdateDamageIcon()
+				UpdateDamageIcon(1)
 		else
 			if(affecting.take_damage((istype(O, /obj/effect/meteor/small) ? 10 : 25), 30))
-				UpdateDamageIcon()
+				UpdateDamageIcon(1)
 		updatehealth()
 	return

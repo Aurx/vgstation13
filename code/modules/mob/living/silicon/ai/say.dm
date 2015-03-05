@@ -1,22 +1,25 @@
 /mob/living/silicon/ai/say(var/message)
-	if(parent && istype(parent) && parent.stat != 2)
+	if(parent && istype(parent) && parent.stat != 2) //If there is a defined "parent" AI, it is actually an AI, and it is alive, anything the AI tries to say is said by the parent instead.
 		parent.say(message)
 		return
-		//If there is a defined "parent" AI, it is actually an AI, and it is alive, anything the AI tries to say is said by the parent instead.
 	..(message)
 
-/mob/living/silicon/ai/say_understands(var/other)
-	if (istype(other, /mob/living/carbon/human))
-		return 1
-	if (istype(other, /mob/living/silicon/robot))
-		return 1
-	if (istype(other, /mob/living/silicon/decoy))
-		return 1
-	if (istype(other, /mob/living/carbon/brain))
-		return 1
-	if (istype(other, /mob/living/silicon/pai))
-		return 1
-	return ..()
+
+/mob/living/silicon/ai/compose_track_href(atom/movable/speaker, message_langs, raw_message, radio_freq)
+	//this proc assumes that the message originated from a radio. if the speaker is not a virtual speaker this will probably fuck up hard.
+	var/mob/M = speaker.GetSource()
+	var/obj/item/device/radio = speaker.GetRadio()
+	if(M)
+		var/faketrack = "byond://?src=\ref[radio];track2=\ref[src];track=\ref[M]"
+		if(speaker.GetTrack())
+			faketrack = "byond://?src=\ref[radio];track2=\ref[src];faketrack=\ref[M]"
+
+		return "<a href='byond://?src=\ref[radio];open2=\ref[src];open=\ref[M]'>\[OPEN\] </a> <a href='[faketrack]'>"
+	return ""
+
+/mob/living/silicon/ai/compose_job(atom/movable/speaker, message_langs, raw_message, radio_freq)
+	//Also includes the </a> for AI hrefs, for convenience.
+	return " [radio_freq ? "(" + speaker.GetJob() + ")" : ""]" + "[speaker.GetSource() ? "</a>" : ""]"
 
 /mob/living/silicon/ai/say_quote(var/text)
 	var/ending = copytext(text, length(text))
@@ -28,8 +31,63 @@
 
 	return "states, \"[text]\"";
 
-/mob/living/silicon/ai/proc/IsVocal()
+/mob/living/silicon/ai/IsVocal()
+	return !config.silent_ai
 
+/mob/living/silicon/ai/get_message_mode(message)
+	if(department_radio_keys[copytext(message, 1, 3)] == MODE_DEPARTMENT)
+		return MODE_HOLOPAD
+	else
+		return ..()
+
+/mob/living/silicon/ai/handle_inherent_channels(message, message_mode)
+	. = ..()
+	if(.)
+		return .
+
+	if(message_mode == MODE_HOLOPAD)
+		holopad_talk(message)
+		return 1
+
+//For holopads only. Usable by AI.
+/mob/living/silicon/ai/proc/holopad_talk(var/message)
+	log_say("[key_name(src)] : [message]")
+
+	message = trim(message)
+
+	if (!message)
+		return
+
+	var/obj/machinery/hologram/holopad/T = current
+	if(istype(T) && T.hologram && T.master == src)//If there is a hologram and its master is the user.
+		send_speech(message, 7, T, "R")
+		src << "<i><span class='game say'>Holopad transmitted, <span class='name'>[real_name]</span> <span class='message'>\"[message]\"</span></span></i>"//The AI can "hear" its own message.
+	else
+		src << "No holopad connected."
+	return
+
+/mob/living/silicon/ai/send_speech(message, message_range = 7, obj/source = src, bubble_type)
+	if(source != current)
+		return ..()
+	var/list/listening = list()
+	for(var/mob/living/L in get_hearers_in_view(message_range, source))
+		if(!istype(L)) continue
+		listening |= L
+	var/list/listening_dead = list()
+	for(var/mob/M in player_list)
+		if(M.client && M.stat == DEAD && (M.client.prefs.toggles & CHAT_GHOSTEARS) && client) // client is so that ghosts don't have to listen to mice
+			listening_dead |= M
+
+	listening -= listening_dead //so ghosts dont hear stuff twice
+
+	var/rendered = compose_message(src, languages, message)
+	for(var/atom/movable/AM in listening)
+		AM.Hear(rendered, src, languages, message)
+
+	for(var/mob/M in listening_dead)
+		M.Hear(rendered, src, languages, message)
+
+	send_speech_bubble(message, bubble_type, (listening + listening_dead))
 var/announcing_vox = 0 // Stores the time of the last announcement
 var/const/VOX_CHANNEL = 200
 var/const/VOX_DELAY = 600
@@ -60,7 +118,9 @@ var/const/VOX_DELAY = 600
 
 
 /mob/living/silicon/ai/verb/announcement()
-
+	set name = "Announcement"
+	set desc = "Send an announcement to the crew"
+	set category = "AI Commands"
 	// If we're in an APC, and APC is ded, ABORT
 	if(parent && istype(parent) && parent.stat)
 		return
@@ -185,7 +245,7 @@ var/list/vox_tens=list(
 		//if (words != "")
 		//	words += "and "
 
-		if (number < 20)
+		if (number < 19) //BYOND LISTS START KEYS AT 1 NOT 0
 			words += vox_units[number+1]
 		else
 			words += vox_tens[(number / 10)+1]

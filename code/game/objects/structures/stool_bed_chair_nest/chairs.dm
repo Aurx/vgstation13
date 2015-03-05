@@ -7,8 +7,6 @@
 	return
 
 /obj/structure/stool/bed/chair/New()
-	if(anchored)
-		src.verbs -= /atom/movable/verb/pull
 	..()
 	spawn(3)	//sorry. i don't think there's a better way to do this.
 		handle_rotation()
@@ -180,6 +178,9 @@
 
 	if(buckled_mob)
 		if(buckled_mob.loc != src.loc)
+			if(!isturf(buckled_mob.loc)) //We lost our mob!
+				unbuckle()
+				return
 			buckled_mob.buckled = null //Temporary, so Move() succeeds.
 			if(!buckled_mob.Move(loc))
 				unbuckle()

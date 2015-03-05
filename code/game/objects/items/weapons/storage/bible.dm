@@ -5,7 +5,7 @@
 	throw_speed = 1
 	throw_range = 5
 	w_class = 3.0
-	flags = FPRINT | TABLEPASS
+	flags = FPRINT
 	var/mob/affecting = null
 	var/deity_name = "Christ"
 
@@ -81,7 +81,7 @@
 		if(M.mind && (M.mind.assigned_role == "Chaplain"))
 			user << "\red You can't heal yourself!"
 			return
-		if((M.mind in ticker.mode.cult && !(M.mind in ticker.mode.modePlayer)) && (prob(20))) // can't deconvert originals - Pomf
+		if((iscult(M) && !isculthead(M)) && (prob(20))) // can't deconvert originals - Pomf
 			M << "\red The power of [src.deity_name] clears your mind of heresy!"
 			user << "\red You see how [M]'s eyes become clear, the cult no longer holds control over him!"
 			ticker.mode.remove_cultist(M.mind)
@@ -109,6 +109,7 @@
 		user << "\blue You hit the floor with the bible."
 		if(user.mind && (user.mind.assigned_role == "Chaplain"))
 			call(/obj/effect/rune/proc/revealrunes)(src)*/
+	user.delayNextAttack(5)
 	if(user.mind && (user.mind.assigned_role == "Chaplain"))
 		if(A.reagents && A.reagents.has_reagent("water")) //blesses all the water in the holder
 			user << "\blue You bless [A]."

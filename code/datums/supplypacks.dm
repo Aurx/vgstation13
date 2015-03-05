@@ -218,7 +218,7 @@ var/list/all_supply_groups = list("Supplies","Clothing","Security","Hospitality"
 					/obj/item/clothing/under/rank/clown,
 					/obj/item/weapon/bikehorn,
 					/obj/item/clothing/under/mime,
-					/obj/item/clothing/shoes/black,
+					/obj/item/clothing/shoes/mime,
 					/obj/item/clothing/gloves/white,
 					/obj/item/clothing/mask/gas/mime,
 					/obj/item/clothing/head/beret,
@@ -369,6 +369,7 @@ var/list/all_supply_groups = list("Supplies","Clothing","Security","Hospitality"
 					/obj/item/weapon/reagent_containers/glass/bottle/inaprovaline,
 					/obj/item/weapon/reagent_containers/glass/bottle/stoxin,
 					/obj/item/weapon/storage/box/syringes,
+					/obj/item/weapon/storage/bag/chem,
 					/obj/item/weapon/storage/box/autoinjectors)
 	cost = 10
 	containertype = /obj/structure/closet/crate/medical
@@ -410,7 +411,7 @@ var/list/all_supply_groups = list("Supplies","Clothing","Security","Hospitality"
 
 /datum/supply_packs/glass50
 	name = "50 Glass Sheets"
-	contains = list(/obj/item/stack/sheet/glass)
+	contains = list(/obj/item/stack/sheet/glass/glass)
 	amount = 50
 	cost = 10
 	containertype = /obj/structure/closet/crate/engi
@@ -475,27 +476,27 @@ var/list/all_supply_groups = list("Supplies","Clothing","Security","Hospitality"
 
 /datum/supply_packs/solar
 	name = "Solar Pack crate"
-	contains  = list(/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly,
-					/obj/item/solar_assembly, // 21 Solar Assemblies. 1 Extra for the controller
+	contains  = list(/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly,
+					/obj/machinery/power/solar_assembly, //21 Solar Assemblies. 1 Extra for the controller
 					/obj/item/weapon/circuitboard/solar_control,
 					/obj/item/weapon/tracker_electronics,
 					/obj/item/weapon/paper/solar)
@@ -855,7 +856,7 @@ var/list/all_supply_groups = list("Supplies","Clothing","Security","Hospitality"
 	/obj/item/weapon/reagent_containers/glass/paint/black,
 	/obj/item/weapon/reagent_containers/glass/paint/white,
 	/obj/item/weapon/reagent_containers/glass/paint/remover,
-	/obj/item/weapon/contraband/poster,
+	/obj/item/mounted/poster,
 	/obj/item/weapon/wrapping_paper,
 	/obj/item/weapon/wrapping_paper,
 	/obj/item/weapon/wrapping_paper)

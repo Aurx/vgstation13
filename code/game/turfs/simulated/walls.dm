@@ -15,17 +15,15 @@
 	var/hardness = 40 //lower numbers are harder. Used to determine the probability of a hulk smashing through.
 	var/engraving, engraving_quality //engraving on the wall
 	var/del_suppress_resmoothing = 0 // Do not resmooth neighbors on Destroy. (smoothwall.dm)
-	canSmoothWith = list(
-		/turf/simulated/wall,
-		/obj/structure/falsewall,
-		/obj/structure/falserwall // WHY DO WE SMOOTH WITH FALSE R-WALLS WHEN WE DON'T SMOOTH WITH REAL R-WALLS.
-	)
+
+	// WHY DO WE SMOOTH WITH FALSE R-WALLS WHEN WE DON'T SMOOTH WITH REAL R-WALLS.
+	canSmoothWith = "/turf/simulated/wall=0&/obj/structure/falsewall=0&/obj/structure/falserwall=0"
 
 	soot_type = null
 
-/turf/simulated/wall/examine()
+/turf/simulated/wall/examine(mob/user)
 	..()
-	if(src.engraving) usr << src.engraving
+	if(src.engraving) user << src.engraving
 
 /turf/simulated/wall/proc/dismantle_wall(devastated=0, explode=0)
 	if(istype(src,/turf/simulated/wall/r_wall))
@@ -34,16 +32,18 @@
 			new /obj/structure/girder/reinforced(src)
 			new /obj/item/stack/sheet/plasteel( src )
 		else
-			new /obj/item/stack/sheet/metal( src )
-			new /obj/item/stack/sheet/metal( src )
+			var/obj/item/stack/sheet/metal/M = getFromPool(/obj/item/stack/sheet/metal, get_turf(src))
+			M.amount = 2
 			new /obj/item/stack/sheet/plasteel( src )
 	else if(istype(src,/turf/simulated/wall/cult))
 		if(!devastated)
 			playsound(src, 'sound/items/Welder.ogg', 100, 1)
-			new /obj/effect/decal/cleanable/blood(src)
+			var/obj/effect/decal/cleanable/blood/B = getFromPool(/obj/effect/decal/cleanable/blood,src) //new /obj/effect/decal/cleanable/blood(src)
+			B.New(src)
 			new /obj/structure/cultgirder(src)
 		else
-			new /obj/effect/decal/cleanable/blood(src)
+			var/obj/effect/decal/cleanable/blood/B = getFromPool(/obj/effect/decal/cleanable/blood,src) //new /obj/effect/decal/cleanable/blood(src)
+			B.New(src)
 			new /obj/effect/decal/remains/human(src)
 
 	else
@@ -51,22 +51,22 @@
 			playsound(src, 'sound/items/Welder.ogg', 100, 1)
 			new /obj/structure/girder(src)
 			if (mineral == "metal")
-				new /obj/item/stack/sheet/metal( src )
-				new /obj/item/stack/sheet/metal( src )
+				var/obj/item/stack/sheet/metal/M = getFromPool(/obj/item/stack/sheet/metal, get_turf(src))
+				M.amount = 2
 			else
 				var/M = text2path("/obj/item/stack/sheet/mineral/[mineral]")
 				new M( src )
 				new M( src )
 		else
 			if (mineral == "metal")
-				new /obj/item/stack/sheet/metal( src )
-				new /obj/item/stack/sheet/metal( src )
-				new /obj/item/stack/sheet/metal( src )
+				var/obj/item/stack/sheet/metal/M = getFromPool(/obj/item/stack/sheet/metal, get_turf(src))
+				M.amount = 3
 			else
 				var/M = text2path("/obj/item/stack/sheet/mineral/[mineral]")
 				new M( src )
 				new M( src )
-				new /obj/item/stack/sheet/metal( src )
+				var/obj/item/stack/sheet/metal/MM = getFromPool(/obj/item/stack/sheet/metal, src)
+				MM.amount = 1
 
 	for(var/obj/O in src.contents) //Eject contents!
 		if(istype(O,/obj/structure/sign/poster))
@@ -81,7 +81,7 @@
 	switch(severity)
 		if(1.0)
 			//SN src = null
-			src.ChangeTurf(/turf/space)
+			src.ChangeTurf(under_turf)
 			return
 		if(2.0)
 			if (prob(50))
@@ -104,57 +104,57 @@
 		dismantle_wall()
 
 /turf/simulated/wall/attack_paw(mob/user as mob)
-	user.changeNext_move(8)
+	user.delayNextAttack(8)
 	if ((M_HULK in user.mutations))
 		if (prob(hardness))
-			usr << text("\blue You smash through the wall.")
+			usr << text("<span class='attack'>You smash through the wall.</span>")
 			usr.say(pick(";RAAAAAAAARGH!", ";HNNNNNNNNNGGGGGGH!", ";GWAAAAAAAARRRHHH!", "NNNNNNNNGGGGGGGGHH!", ";AAAAAAARRRGH!" ))
 			dismantle_wall(1)
 			return
 		else
-			usr << text("\blue You punch the wall.")
+			usr << text("<span class='attack'>You punch the wall.</span>")
 			return
 
 	return src.attack_hand(user)
 
 /turf/simulated/wall/attack_animal(var/mob/living/simple_animal/M)
-	M.changeNext_move(8)
+	M.delayNextAttack(8)
 	if(M.environment_smash >= 2)
 		if(istype(src, /turf/simulated/wall/r_wall))
 			if(M.environment_smash == 3)
 				dismantle_wall(1)
-				M << "<span class='info'>You smash through the wall.</span>"
+				M << "<span class='attack'>You smash through the wall.</span>"
 			else
 				M << "<span class='info'>This wall is far too strong for you to destroy.</span>"
 		else
-			M << "<span class='info'>You smash through the wall.</span>"
+			M << "<span class='attack'>You smash through the wall.</span>"
 			dismantle_wall(1)
 			return
 
 /turf/simulated/wall/attack_hand(mob/user as mob)
-	user.changeNext_move(8)
+	user.delayNextAttack(8)
 	if (M_HULK in user.mutations)
 		if (prob(hardness) || rotting)
-			usr << text("\blue You smash through the wall.")
+			usr << text("<span class='attack'>You smash through the wall.</span>")
 			usr.say(pick(";RAAAAAAAARGH!", ";HNNNNNNNNNGGGGGGH!", ";GWAAAAAAAARRRHHH!", "NNNNNNNNGGGGGGGGHH!", ";AAAAAAARRRGH!" ))
 			dismantle_wall(1)
 			return
 		else
-			usr << text("\blue You punch the wall.")
+			usr << text("<span class='attack'>You punch the wall.</span>")
 			return
 
 	if(rotting)
-		user << "\blue The wall crumbles under your touch."
+		user << "<span class='notice'>\The wall crumbles under your touch.</span>"
 		dismantle_wall()
 		return
 
-	user << "\blue You push the wall but nothing happens!"
+	user << "<span class='notice'>You push the wall but nothing happens!</span>"
 	playsound(src, 'sound/weapons/Genhit.ogg', 25, 1)
 	src.add_fingerprint(user)
-	return
+	return ..()
 
 /turf/simulated/wall/attackby(obj/item/weapon/W as obj, mob/user as mob)
-	user.changeNext_move(8)
+	user.delayNextAttack(8)
 	if (!(istype(user, /mob/living/carbon/human) || ticker) && ticker.mode.name != "monkey")
 		user << "<span class='warning'>You don't have the dexterity to do this!</span>"
 		return
@@ -163,16 +163,22 @@
 	if( !istype(user.loc, /turf) )	return	//can't do this stuff whilst inside objects and such
 
 	if(rotting)
-		if(istype(W, /obj/item/weapon/weldingtool) )
+		if(iswelder(W))
 			var/obj/item/weapon/weldingtool/WT = W
 			if( WT.remove_fuel(0,user) )
 				user << "<span class='notice'>You burn away the fungi with \the [WT].</span>"
 				playsound(src, 'sound/items/Welder.ogg', 10, 1)
 				for(var/obj/effect/E in src) if(E.name == "Wallrot")
-					del E
+					qdel(E)
 				rotting = 0
 				return
-		else if(!is_sharp(W) && W.force >= 10 || W.force >= 20)
+		if(istype(W,/obj/item/weapon/soap))
+			user << "<span class='notice'>You forcefully scrub away the fungi with your [W].</span>"
+			for(var/obj/effect/E in src) if(E.name == "Wallrot")
+				qdel(E)
+			rotting = 0
+			return
+		else if(!W.is_sharp() && W.force >= 10 || W.force >= 20)
 			user << "<span class='notice'>\The [src] crumbles away under the force of your [W.name].</span>"
 			src.dismantle_wall(1)
 
@@ -276,69 +282,7 @@
 				O.show_message("<span class='warning'>The wall was sliced apart by [user]!</span>", 1, "<span class='warning'>You hear metal being sliced apart and sparks flying.</span>", 2)
 		return
 
-	else if(istype(W,/obj/item/apc_frame))
-		var/obj/item/apc_frame/AH = W
-		AH.try_build(src)
-		return
-
-	else if(istype(W,/obj/item/airlock_controller_frame))
-		var/obj/item/airlock_controller_frame/AH = W
-		AH.try_build(src)
-		return
-
-	else if(istype(W,/obj/item/access_button_frame))
-		var/obj/item/access_button_frame/AH = W
-		AH.try_build(src)
-		return
-
-	else if(istype(W,/obj/item/airlock_sensor_frame))
-		var/obj/item/airlock_sensor_frame/AH = W
-		AH.try_build(src)
-		return
-	/*
-	else if(istype(W,/obj/item/newscaster_frame))
-		var/obj/item/newscaster_frame/AH = W
-		AH.try_build(src)
-		return
-	*/
-	else if(istype(W,/obj/item/alarm_frame))
-		var/obj/item/alarm_frame/AH = W
-		AH.try_build(src)
-		return
-
-	else if(istype(W,/obj/item/firealarm_frame))
-		var/obj/item/firealarm_frame/AH = W
-		AH.try_build(src)
-		return
-
-	else if(istype(W,/obj/item/light_fixture_frame))
-		var/obj/item/light_fixture_frame/AH = W
-		AH.try_build(src)
-		return
-
-	else if(istype(W,/obj/item/light_fixture_frame/small))
-		var/obj/item/light_fixture_frame/small/AH = W
-		AH.try_build(src)
-		return
-
-	else if(istype(W,/obj/item/rust_fuel_compressor_frame))
-		var/obj/item/rust_fuel_compressor_frame/AH = W
-		AH.try_build(src)
-		return
-
-	else if(istype(W,/obj/item/rust_fuel_assembly_port_frame))
-		var/obj/item/rust_fuel_assembly_port_frame/AH = W
-		AH.try_build(src)
-		return
-
-	else if(istype(W,/obj/item/wallmed_frame))
-		var/obj/item/wallmed_frame/AH = W
-		AH.try_build(src)
-		return
-
-	//Poster stuff
-	else if(istype(W,/obj/item/weapon/contraband/poster))
-		place_poster(W,user)
+	else if(istype(W, /obj/item/mounted)) //if we place it, we don't want to have a silly message
 		return
 
 	else
@@ -393,7 +337,7 @@
 		message_admins("[user.real_name] ([formatPlayerPanel(user,user.ckey)]) thermited a wall with a pdiff of [pdiff] at [formatJumpTo(loc)]!")
 
 	spawn(100)
-		if(O)	del(O)
+		if(O)	qdel(O)
 //	F.sd_LumReset()		//TODO: ~Carn
 	return
 
@@ -433,3 +377,12 @@
 	ChangeTurf(/turf/simulated/wall/cult)
 	turf_animation('icons/effects/effects.dmi',"cultwall",0,0,MOB_LAYER-1)
 	return
+
+/turf/simulated/wall/singularity_pull(S, current_size)
+	if(current_size >= STAGE_FIVE)
+		if(prob(50))
+			dismantle_wall()
+		return
+	if(current_size == STAGE_FOUR)
+		if(prob(30))
+			dismantle_wall()

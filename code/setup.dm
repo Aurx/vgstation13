@@ -55,28 +55,28 @@ var/global/disable_vents     = 0
 #define BODYTEMP_HEAT_DAMAGE_LIMIT 360.15 // The limit the human body can take before it starts taking damage from heat.
 #define BODYTEMP_COLD_DAMAGE_LIMIT 260.15 // The limit the human body can take before it starts taking damage from coldness.
 
-#define SPACE_HELMET_MIN_COLD_PROTECITON_TEMPERATURE 2.0 //what min_cold_protection_temperature is set to for space-helmet quality headwear. MUST NOT BE 0.
-#define SPACE_SUIT_MIN_COLD_PROTECITON_TEMPERATURE 2.0 //what min_cold_protection_temperature is set to for space-suit quality jumpsuits or suits. MUST NOT BE 0.
-#define SPACE_SUIT_MAX_HEAT_PROTECITON_TEMPERATURE 5000	//These need better heat protect
-#define FIRESUIT_MAX_HEAT_PROTECITON_TEMPERATURE 30000 //what max_heat_protection_temperature is set to for firesuit quality headwear. MUST NOT BE 0.
-#define FIRE_HELMET_MAX_HEAT_PROTECITON_TEMPERATURE 30000 //for fire helmet quality items (red and white hardhats)
-#define HELMET_MIN_COLD_PROTECITON_TEMPERATURE 160	//For normal helmets
-#define HELMET_MAX_HEAT_PROTECITON_TEMPERATURE 600	//For normal helmets
-#define ARMOR_MIN_COLD_PROTECITON_TEMPERATURE 160	//For armor
-#define ARMOR_MAX_HEAT_PROTECITON_TEMPERATURE 600	//For armor
+#define SPACE_HELMET_MIN_COLD_PROTECTION_TEMPERATURE 2.0 //what min_cold_protection_temperature is set to for space-helmet quality headwear. MUST NOT BE 0.
+#define SPACE_SUIT_MIN_COLD_PROTECTION_TEMPERATURE 2.0 //what min_cold_protection_temperature is set to for space-suit quality jumpsuits or suits. MUST NOT BE 0.
+#define SPACE_SUIT_MAX_HEAT_PROTECTION_TEMPERATURE 5000	//These need better heat protect
+#define FIRESUIT_MAX_HEAT_PROTECTION_TEMPERATURE 30000 //what max_heat_protection_temperature is set to for firesuit quality headwear. MUST NOT BE 0.
+#define FIRE_HELMET_MAX_HEAT_PROTECTION_TEMPERATURE 30000 //for fire helmet quality items (red and white hardhats)
+#define HELMET_MIN_COLD_PROTECTION_TEMPERATURE 160	//For normal helmets
+#define HELMET_MAX_HEAT_PROTECTION_TEMPERATURE 600	//For normal helmets
+#define ARMOR_MIN_COLD_PROTECTION_TEMPERATURE 160	//For armor
+#define ARMOR_MAX_HEAT_PROTECTION_TEMPERATURE 600	//For armor
 
-#define GLOVES_MIN_COLD_PROTECITON_TEMPERATURE 2.0	//For some gloves (black and)
-#define GLOVES_MAX_HEAT_PROTECITON_TEMPERATURE 1500		//For some gloves
-#define SHOE_MIN_COLD_PROTECITON_TEMPERATURE 2.0	//For gloves
-#define SHOE_MAX_HEAT_PROTECITON_TEMPERATURE 1500		//For gloves
+#define GLOVES_MIN_COLD_PROTECTION_TEMPERATURE 2.0	//For some gloves (black and)
+#define GLOVES_MAX_HEAT_PROTECTION_TEMPERATURE 1500		//For some gloves
+#define SHOE_MIN_COLD_PROTECTION_TEMPERATURE 2.0	//For gloves
+#define SHOE_MAX_HEAT_PROTECTION_TEMPERATURE 1500		//For gloves
 
 
 #define PRESSURE_DAMAGE_COEFFICIENT 4 //The amount of pressure damage someone takes is equal to (pressure / HAZARD_HIGH_PRESSURE)*PRESSURE_DAMAGE_COEFFICIENT, with the maximum of MAX_PRESSURE_DAMAGE
 #define MAX_HIGH_PRESSURE_DAMAGE 4	//This used to be 20... I got this much random rage for some retarded decision by polymorph?! Polymorph now lies in a pool of blood with a katana jammed in his spleen. ~Errorage --PS: The katana did less than 20 damage to him :(
 #define LOW_PRESSURE_DAMAGE 2 	//The amounb of damage someone takes when in a low pressure area (The pressure threshold is so low that it doesn't make sense to do any calculations, so it just applies this flat value).
 
-#define PRESSURE_SUIT_REDUCTION_COEFFICIENT 0.8 //This is how much (percentual) a suit with the flag STOPSPRESSUREDMAGE reduces pressure.
-#define PRESSURE_HEAD_REDUCTION_COEFFICIENT 0.4 //This is how much (percentual) a helmet/hat with the flag STOPSPRESSUREDMAGE reduces pressure.
+#define PRESSURE_SUIT_REDUCTION_COEFFICIENT 0.8 //This is how much (percentual) a suit with the flag STOPSPRESSUREDMG reduces pressure.
+#define PRESSURE_HEAD_REDUCTION_COEFFICIENT 0.4 //This is how much (percentual) a helmet/hat with the flag STOPSPRESSUREDMG reduces pressure.
 
 // Doors!
 #define DOOR_CRUSH_DAMAGE 10
@@ -141,7 +141,7 @@ var/global/disable_vents     = 0
 
 #define T0C  273.15					// 0degC
 #define T20C 293.15					// 20degC
-#define TCMB 2.7					// -270.3degC
+#define TCMB 2.73					// -270.42degC
 
 var/turf/space/Space_Tile = locate(/turf/space) // A space tile to reference when atmos wants to remove excess heat.
 
@@ -187,27 +187,18 @@ var/MAX_EXPLOSION_RANGE = 14
 #define SLOT_LEGS = 16384
 
 //FLAGS BITMASK
-#define STOPSPRESSUREDMAGE 1	//This flag is used on the flags variable for SUIT and HEAD items which stop pressure damage. Note that the flag 1 was previous used as ONBACK, so it is possible for some code to use (flags & 1) when checking if something can be put on your back. Replace this code with (inv_flags & SLOT_BACK) if you see it anywhere
-                                //To successfully stop you taking all pressure damage you must have both a suit and head item with this flag.
-#define TABLEPASS 2			// can pass by a table or rack
 
 #define MASKINTERNALS	8	// mask allows internals
 //#define SUITSPACE		8	// suit protects against space
 
-#define USEDELAY 	16		// 1 second extra delay on use (Can be used once every 2s)
-#define NODELAY 	32768	// 1 second attackby delay skipped (Can be used once every 0.2s). Most objects have a 1s attackby delay, which doesn't require a flag.
-#define NOSHIELD	32		// weapon not affected by shield
-#define CONDUCT		64		// conducts electricity (metal etc.)
+#define TWOHANDABLE		32
+#define MUSTTWOHAND		64
+
 #define FPRINT		256		// takes a fingerprint
 #define ON_BORDER	512		// item has priority to check when entering or leaving
 #define NOBLUDGEON  4  // when an item has this it produces no "X has been hit by Y with Z" message with the default handler
 #define NOBLOODY	2048	// used to items if they don't want to get a blood overlay
-
-#define GLASSESCOVERSEYES	1024
-#define MASKCOVERSEYES		1024		// get rid of some of the other retardation in these flags
-#define HEADCOVERSEYES		1024		// feel free to realloc these numbers for other purposes
-#define MASKCOVERSMOUTH		2048		// on other items, these are just for mask/head
-#define HEADCOVERSMOUTH		2048
+#define HEAR		16
 
 #define NOSLIP		1024 		//prevents from slipping on wet floors, in space etc
 
@@ -219,16 +210,32 @@ var/MAX_EXPLOSION_RANGE = 14
 
 #define	NOREACT		16384 			//Reagents dont' react inside this container.
 
-#define BLOCKHEADHAIR 4             // temporarily removes the user's hair overlay. Leaves facial hair.
-#define BLOCKHAIR	32768			// temporarily removes the user's hair, facial and otherwise.
-
 #define INVULNERABLE 128
+
+#define ALL ~0
+#define NONE 0
 
 //flags for pass_flags
 #define PASSTABLE	1
 #define PASSGLASS	2
 #define PASSGRILLE	4
 #define PASSBLOB	8
+
+/*
+	These defines are used specifically with the atom/movable/languages bitmask.
+	They are used in atom/movable/Hear() and atom/movable/say() to determine whether hearers can understand a message.
+
+	They also have a secondary use in Bump() code for living mobs, in the mob_bump_flag and mob_swap_flags/mob_push_flags vars
+*/
+
+#define HUMAN 1
+#define MONKEY 2
+#define ALIEN 4
+#define ROBOT 8
+#define SLIME 16
+#define SIMPLE_ANIMAL 32
+
+#define ALLMOBS 63 //update this
 
 //turf-only flags
 #define NOJAUNT		1
@@ -239,10 +246,13 @@ var/MAX_EXPLOSION_RANGE = 14
 #define HIDESUITSTORAGE	2	//APPLIES ONLY TO THE EXTERIOR SUIT!!
 #define HIDEJUMPSUIT	4	//APPLIES ONLY TO THE EXTERIOR SUIT!!
 #define HIDESHOES		8	//APPLIES ONLY TO THE EXTERIOR SUIT!!
-#define HIDEMASK	1	//APPLIES ONLY TO HELMETS/MASKS!!
-#define HIDEEARS	2	//APPLIES ONLY TO HELMETS/MASKS!! (ears means headsets and such)
-#define HIDEEYES	4	//APPLIES ONLY TO HELMETS/MASKS!! (eyes means glasses)
-#define HIDEFACE	8	//APPLIES ONLY TO HELMETS/MASKS!! Dictates whether we appear as unknown.
+#define HIDEMASK		1	//APPLIES ONLY TO HELMETS/MASKS!!
+#define HIDEEARS		2	//APPLIES ONLY TO HELMETS/MASKS!! (ears means headsets and such)
+#define HIDEEYES		4	//APPLIES ONLY TO HELMETS/MASKS!! (eyes means glasses)
+#define HIDEFACE		8	//APPLIES ONLY TO HELMETS/MASKS!! Dictates whether we appear as unknown.
+#define HIDEHEADHAIR 	16	// APPLIES ONLY TO HELMETS/MASKS!! removes the user's hair overlay
+#define HIDEBEARDHAIR	32	// APPLIES ONLY TO HELMETS/MASKS!! removes the user's beard overlay
+#define HIDEHAIR		48	// APPLIES ONLY TO HELMETS/MASKS!! removes the user's hair, facial and otherwise.
 
 //slots
 #define slot_back 1
@@ -269,7 +279,11 @@ var/MAX_EXPLOSION_RANGE = 14
 //Cant seem to find a mob bitflags area other than the powers one
 
 // bitflags for clothing parts
-#define HEAD			1
+#define HEAD			1 		//top of the head
+#define EYES			2048
+#define MOUTH			4096
+#define EARS			8192
+#define FULL_HEAD		14337 //everything
 #define UPPER_TORSO		2
 #define LOWER_TORSO		4
 #define LEG_LEFT		8
@@ -284,7 +298,7 @@ var/MAX_EXPLOSION_RANGE = 14
 #define HAND_LEFT		512
 #define HAND_RIGHT		1024
 #define HANDS			1536
-#define FULL_BODY		2047
+#define FULL_BODY		16383
 
 // bitflags for the percentual amount of protection a piece of clothing which covers the body part offers.
 // Used with human/proc/get_heat_protection() and human/proc/get_cold_protection()
@@ -388,6 +402,7 @@ var/MAX_EXPLOSION_RANGE = 14
 #define M_WHISPER	209		// causes quiet whispering
 #define M_DIZZY		210		// Trippy.
 #define M_SANS		211		// IF YOU SEE THIS WHILST BROWSING CODE, YOU HAVE BEEN VISITED BY: THE FONT OF SHITPOSTING. GREAT LUCK AND WEALTH WILL COME TO YOU, BUT ONLY IF YOU SAY 'fuck comic sans' IN YOUR PR.
+#define M_FARSIGHT	212		// Increases mob's view range by 2
 
 // Bustanuts
 #define M_HARDCORE      300
@@ -414,6 +429,9 @@ var/MAX_EXPLOSION_RANGE = 14
 #define LIGHT	2
 #define ENVIRON	3
 #define TOTAL	4	//for total power used only
+#define STATIC_EQUIP 5
+#define STATIC_LIGHT	6
+#define STATIC_ENVIRON	7
 
 // bitflags for machine stat variable
 #define BROKEN		1
@@ -481,6 +499,13 @@ var/list/global_mutations = list() // list of hidden mutation things
 #define STUTTER		"stutter"
 #define EYE_BLUR	"eye_blur"
 #define DROWSY		"drowsy"
+
+
+//intent flags yay
+#define I_HELP		"help"
+#define I_DISARM	"disarm"
+#define I_GRAB		"grab"
+#define I_HURT		"hurt"
 
 //I hate adding defines like this but I'd much rather deal with bitflags than lists and string searches
 #define BRUTELOSS 1
@@ -901,6 +926,23 @@ var/list/RESTRICTED_CAMERA_NETWORKS = list( //Those networks can only be accesse
 #define MELTPOINT_STEEL   1510+T0C
 #define MELTPOINT_SILICON 1687 // KELVIN
 #define MELTPOINT_PLASTIC 180+T0C
+#define MELTPOINT_SNOW	304.15	//about 30°C
+
+// snow business
+#define SNOWBALL_MINIMALTEMP 265	//about -10°C, the minimal temperature at which a thrown snowball can cool you down.
+#define SNOWBALL_TIMELIMIT 400	//in deciseconds, how long after being spawn does the snowball disappears if it hasn't been picked up
+
+#define SNOWSPREAD_MAXTEMP 296.15	//23°C, the maximal temperature (in Kelvin) at which cosmic snow will spread to adjacent tiles
+#define COSMICSNOW_MINIMALTEMP 233	//-40°C, the lowest temperature at which Cosmic snow will cool down its surroundings
+
+//the following defines refer to the number of cosmic snow tiles in the world.
+#define COSMICFREEZE_LEVEL_1 300	//Cosmic snow now has a chance to spawn a sappling upon spreading.
+#define COSMICFREEZE_LEVEL_2 600	//Cosmic snow now has a chance to spawn a snowman upon spreading.
+#define COSMICFREEZE_LEVEL_3 1400	//Pine Trees now has a chance to spawn a spiderling upon growing.
+#define COSMICFREEZE_LEVEL_4 1500	//(triggered once per round) Space bears spawn around the station.
+#define COSMICFREEZE_LEVEL_5 2200	//Pine Trees now have a chance to spawn a Space Bear upon growing.
+#define COSMICFREEZE_END 2500	//All the snow procs come to a stop, snow no longer spread.
+
 
 //used to define machine behaviour in attackbys and other code situations
 #define EMAGGABLE		1 //can we emag it? If this is flagged, the machine calls emag()
@@ -944,6 +986,7 @@ var/list/RESTRICTED_CAMERA_NETWORKS = list( //Those networks can only be accesse
 #define VISIBLE 1
 #define HEARABLE 2
 
+
 // /vg/ - Pipeline processing (enables exploding pipes and whatnot)
 // COMMENT OUT TO DISABLE
 // #define ATMOS_PIPELINE_PROCESSING 1
@@ -956,3 +999,88 @@ var/list/RESTRICTED_CAMERA_NETWORKS = list( //Those networks can only be accesse
 #define DIG_SOIL	2	//dirt - this flag gives it shovel functionality
 #define DIG_WALLS	4	//metal station walls - not the mineral ones
 #define DIG_RWALLS	8	//reinforced station walls - beware
+
+// For first investigation_log arg
+// Easier to idiot-proof it this way.
+#define I_HREFS    "hrefs"
+#define I_NOTES    "notes"
+#define I_NTSL     "ntsl"
+#define I_SINGULO  "singulo"
+#define I_ATMOS    "atmos"
+
+// delayNext() flags.
+#define DELAY_MOVE    1
+#define DELAY_ATTACK  2
+#define DELAY_SPECIAL 4
+#define DELAY_ALL (DELAY_MOVE|DELAY_ATTACK|DELAY_SPECIAL)
+
+//singularity defines
+#define STAGE_ONE 	1
+#define STAGE_TWO 	3
+#define STAGE_THREE	5
+#define STAGE_FOUR	7
+#define STAGE_FIVE	9
+#define STAGE_SUPER	11
+
+//Human Overlays Indexes/////////
+#define FIRE_LAYER				1		//If you're on fire (/tg/ shit)
+#define MUTANTRACE_LAYER		2		//TODO: make part of body?
+#define MUTATIONS_LAYER			3
+#define DAMAGE_LAYER			4
+#define UNIFORM_LAYER			5
+#define ID_LAYER				6
+#define SHOES_LAYER				7
+#define GLOVES_LAYER			8
+#define EARS_LAYER				9
+#define SUIT_LAYER				10
+#define GLASSES_LAYER			11
+#define BELT_LAYER				12		//Possible make this an overlay of somethign required to wear a belt?
+#define SUIT_STORE_LAYER		13
+#define BACK_LAYER				14
+#define HAIR_LAYER				15		//TODO: make part of head layer?
+#define GLASSES_OVER_HAIR_LAYER	16
+#define FACEMASK_LAYER			17
+#define HEAD_LAYER				18
+#define HANDCUFF_LAYER			19
+#define LEGCUFF_LAYER			20
+#define L_HAND_LAYER			21
+#define R_HAND_LAYER			22
+#define TAIL_LAYER				23		//bs12 specific. this hack is probably gonna come back to haunt me
+#define TARGETED_LAYER			24		//BS12: Layer for the target overlay from weapon targeting system
+#define TOTAL_LAYERS			25
+//////////////////////////////////
+
+
+//COMMENT IF YOUR DREAMDAEMON VERSION IS BELOW 507.1248
+#define BORDER_USE_TURF_EXIT 1
+
+////////////////////////
+////WIZARD SHIT GO//////
+////////////////////////
+
+/*		WIZARD SPELL FLAGS		*/
+#define GHOSTCAST		1	//can a ghost cast it?
+#define NEEDSCLOTHES	2	//does it need the wizard garb to cast? Nonwizard spells should not have this
+#define NEEDSHUMAN		4	//does it require the caster to be human?
+#define Z2NOCAST		8	//if this is added, the spell can't be cast at centcomm
+#define STATALLOWED		16	//if set, the user doesn't have to be conscious to cast. Required for ghost spells
+#define IGNOREPREV		32	//if set, each new target does not overlap with the previous one
+//The following flags only affect different types of spell, and therefore overlap
+//Targeted spells
+#define INCLUDEUSER		64	//does the spell include the caster in its target selection?
+#define SELECTABLE		128	//can you select each target for the spell?
+//AOE spells
+#define IGNOREDENSE		64	//are dense turfs ignored in selection?
+#define IGNORESPACE		128	//are space turfs ignored in selection?
+
+//Some alien checks for reagents for alien races.
+#define IS_DIONA 1
+#define IS_VOX 2
+#define IS_PLASMA 3
+
+
+//Turf Construction defines
+#define BUILD_SILENT_FAILURE -1		//We failed but don't give an error message
+#define BUILD_FAILURE 0				//We failed so give an error message
+#define BUILD_SUCCESS 1			//Looks for a lattice to build.
+#define BUILD_IGNORE 2		//Ignores the need for lattice to build.

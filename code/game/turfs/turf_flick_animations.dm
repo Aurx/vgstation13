@@ -2,7 +2,7 @@
 	if(!c_animation)//spamming turf animations can have unintended effects, such as the overlays never disapearing. hence this check.
 		if(anim_sound)
 			playsound(src, anim_sound, 50, 1)
-		c_animation = new /atom/movable/overlay(src)
+		c_animation = getFromPool(/atom/movable/overlay, src)
 		c_animation.name = "turf_animation"
 		c_animation.density = 0
 		c_animation.anchored = 1
@@ -16,9 +16,10 @@
 			c_animation.color = anim_color
 		flick("turf_animation",c_animation)
 		spawn(10)
-			c_animation.master = null
-			c_animation.loc = null
-			c_animation = null	//Letting the Garbage Collector take care of it.
+			if(c_animation)
+				c_animation.Destroy()
+				returnToPool(c_animation)
+				c_animation = null
 
 
 /*
@@ -40,7 +41,9 @@
 		c_animation.pixel_y = 0
 		flick("cultification",c_animation)
 		spawn(10)
-			del(c_animation)
+			c_animation.master = null
+			c_animation.loc = null
+			qdel(c_animation)
 
 //called by various cult runes
 /turf/proc/invocanimation(var/animation_type)
@@ -57,7 +60,7 @@
 		c_animation.pixel_y = 0
 		flick("invocanimation",c_animation)
 		spawn(10)
-			del(c_animation)
+			qdel(c_animation)
 
 //called whenever a null rod is blocking a spell or rune
 /turf/proc/nullding()

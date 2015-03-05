@@ -151,6 +151,8 @@
 		var/mob/living/carbon/human/H = AM
 		if(istype(H.get_active_hand(),/obj/item/weapon/pickaxe))
 			attackby(H.get_active_hand(), H)
+		else if(istype(H.get_inactive_hand(),/obj/item/weapon/pickaxe))
+			attackby(H.get_inactive_hand(), H)
 
 	else if(istype(AM,/mob/living/silicon/robot))
 		var/mob/living/silicon/robot/R = AM
@@ -191,6 +193,8 @@
 		return
 
 	if (istype(W, /obj/item/device/core_sampler))
+		if(!geologic_data)
+			geologic_data = new/datum/geosample(src)
 		geologic_data.UpdateNearbyArtifactInfo(src)
 		var/obj/item/device/core_sampler/C = W
 		C.sample_item(src, user)
@@ -403,8 +407,8 @@
 				R.amount = rand(1,5)
 
 			if(3)
-				var/obj/item/stack/sheet/metal/R = new(src)
-				R.amount = rand(5,25)
+				var/obj/item/stack/sheet/metal/M = getFromPool(/obj/item/stack/sheet/metal, (src))
+				M.amount = rand(5,25)
 
 			if(4)
 				var/obj/item/stack/sheet/plasteel/R = new(src)
@@ -513,7 +517,7 @@
 	return
 
 /turf/unsimulated/floor/asteroid/proc/updateMineralOverlays()
-	src.overlays.Cut()
+	src.overlays.len = 0
 
 	if(istype(get_step(src, NORTH), /turf/unsimulated/mineral))
 		src.overlays += image('icons/turf/walls.dmi', "rock_side_n")
@@ -811,7 +815,7 @@
 	var/bump_reject = 0
 	if(istype(AM,/mob/living/carbon/human))
 		var/mob/living/carbon/human/H = AM
-		if(istype(H.get_active_hand(),/obj/item/weapon/pickaxe) && src.stage == 1)
+		if((istype(H.get_active_hand(),/obj/item/weapon/pickaxe) || istype(H.get_inactive_hand(),/obj/item/weapon/pickaxe)) && src.stage == 1)
 			H << "<span class='warning'>You don't think that's a good idea...</span>"
 			bump_reject = 1
 
@@ -833,7 +837,7 @@
 		return ..()
 
 /turf/unsimulated/mineral/gibtonite/attackby(obj/item/I, mob/user)
-	if(istype(I, /obj/item/device/mining_scanner) && stage == 1)
+	if(((istype(I, /obj/item/device/mining_scanner)) || (istype(I, /obj/item/device/depth_scanner))) && stage == 1)
 		user.visible_message("<span class='notice'>You use [I] to locate where to cut off the chain reaction and attempt to stop it...</span>")
 		defuse()
 	if(istype(I, /obj/item/weapon/pickaxe))
@@ -885,7 +889,7 @@
 		mineral.result_amount = 0
 		explosion(bombturf,1,2,5, adminlog = 0)
 	if(stage == 2) //Gibtonite deposit is now benign and extractable. Depending on how close you were to it blowing up before defusing, you get better quality ore.
-		var/obj/item/weapon/twohanded/required/gibtonite/G = new /obj/item/weapon/twohanded/required/gibtonite/(src)
+		var/obj/item/weapon/gibtonite/G = new /obj/item/weapon/gibtonite/(src)
 		if(det_time <= 0)
 			G.quality = 3
 			G.icon_state = "Gibtonite ore 3"
@@ -994,3 +998,18 @@
 /turf/unsimulated/floor/asteroid/plating
 	intact=0
 	icon_state="asteroidplating"
+
+/turf/unsimulated/floor/asteroid/canBuildCatwalk()
+	return BUILD_FAILURE
+
+/turf/unsimulated/floor/asteroid/canBuildLattice()
+	if(!(locate(/obj/structure/lattice) in contents))
+		return BUILD_SUCCESS
+	return BUILD_FAILURE
+
+/turf/unsimulated/floor/asteroid/canBuildPlating()
+	if(locate(/obj/structure/lattice) in contents)
+		return BUILD_FAILURE
+	if(!dug)
+		return BUILD_IGNORE
+	return 0

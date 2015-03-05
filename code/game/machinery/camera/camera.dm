@@ -61,10 +61,12 @@ var/list/camera_names=list()
 	..()
 
 /obj/machinery/camera/Destroy()
-	if(wires)
-		wires.Destroy()
-		wires = null
-
+	deactivate(null, 0) //kick anyone viewing out
+	if(assembly)
+		qdel(assembly)
+		assembly = null
+	qdel(wires)
+	cameranet.removeCamera(src) //Will handle removal from the camera network and the chunks, so we don't need to worry about that
 	..()
 
 /obj/machinery/camera/emp_act(severity)
@@ -102,7 +104,7 @@ var/list/camera_names=list()
 	return
 
 /obj/machinery/camera/blob_act()
-	del(src)
+	qdel(src)
 	return
 
 /obj/machinery/camera/proc/setViewRange(var/num = 7)
@@ -138,9 +140,11 @@ var/list/camera_names=list()
 	else if(istype(W, /obj/item/weapon/weldingtool) && wires.CanDeconstruct())
 		if(weld(W, user))
 			if(assembly)
-				assembly.loc = src.loc
 				assembly.state = 1
-			del(src)
+				assembly.loc = src.loc
+				assembly = null
+
+			qdel(src)
 
 
 	// OTHER
@@ -219,13 +223,13 @@ var/list/camera_names=list()
 /obj/machinery/camera/proc/triggerCameraAlarm()
 	alarm_on = 1
 	for(var/mob/living/silicon/S in mob_list)
-		S.triggerAlarm("Camera", get_area(src), list(src), src)
+		S.triggerAlarm("Camera", areaMaster, list(src), src)
 
 
 /obj/machinery/camera/proc/cancelCameraAlarm()
 	alarm_on = 0
 	for(var/mob/living/silicon/S in mob_list)
-		S.cancelAlarm("Camera", get_area(src), list(src), src)
+		S.cancelAlarm("Camera", areaMaster, list(src), src)
 
 /obj/machinery/camera/proc/can_use()
 	if(!status)
@@ -240,7 +244,7 @@ var/list/camera_names=list()
 	if(isXRay())
 		see = range(view_range, pos)
 	else
-		see = hear(view_range, pos)
+		see = get_hear(view_range, pos)
 	return see
 
 /atom/proc/auto_turn()

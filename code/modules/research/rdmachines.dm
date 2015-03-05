@@ -64,7 +64,7 @@
 				break
 
 /obj/machinery/r_n_d/update_icon()
-	overlays.Cut()
+	overlays.len = 0
 	if(linked_console)
 		overlays += "[base_state]_link"
 
@@ -97,6 +97,9 @@
 /obj/machinery/r_n_d/Topic(href, href_list)
 	if(..())
 		return
+	if(href_list["close"])
+		if(usr.machine == src) usr.unset_machine()
+		return 1
 	usr.set_machine(src)
 	src.add_fingerprint(usr)
 	if(href_list["pulse"])

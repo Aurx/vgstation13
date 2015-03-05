@@ -117,7 +117,7 @@ Thus, the two variables affect pump operation are set in New():
 /obj/machinery/atmospherics/binary/volume_pump/receive_signal(datum/signal/signal)
 	if(!signal.data["tag"] || (signal.data["tag"] != id_tag) || (signal.data["sigtype"]!="command"))
 		return 0
-
+	var/old_on=on
 	if("power" in signal.data)
 		on = text2num(signal.data["power"])
 
@@ -125,9 +125,9 @@ Thus, the two variables affect pump operation are set in New():
 		on = !on
 
 	if("set_transfer_rate" in signal.data)
-		transfer_rate = between(
-			0,
+		transfer_rate = Clamp(
 			text2num(signal.data["set_transfer_rate"]),
+			0,
 			air1.volume
 		)
 
@@ -139,7 +139,8 @@ Thus, the two variables affect pump operation are set in New():
 	spawn(2)
 		broadcast_status()
 	update_icon()
-	activity_log += text("\[[time_stamp()]\] Remote signal toggled us [on ? "on" : "off"]")
+	if(old_on!=on)
+		investigation_log(I_ATMOS,"was powered [on ? "on" : "off"] by a remote signal")
 
 
 /obj/machinery/atmospherics/binary/volume_pump/attack_hand(user as mob)
@@ -157,10 +158,11 @@ Thus, the two variables affect pump operation are set in New():
 	if(..()) return
 	if(href_list["power"])
 		on = !on
-		activity_log += text("\[[time_stamp()]\] Real name: [], Key: [] - turned [] \the [].",usr.real_name, usr.key,(on ? "on" : "off"),src)
+		investigation_log(I_ATMOS,"was turned [on ? "on" : "off"] by [key_name(usr)]")
 	if(href_list["set_transfer_rate"])
 		var/new_transfer_rate = input(usr,"Enter new output volume (0-200l/s)","Flow control",src.transfer_rate) as num
 		src.transfer_rate = max(0, min(200, new_transfer_rate))
+		investigation_log(I_ATMOS,"was set to [transfer_rate] L/s by [key_name(usr)]")
 	usr.set_machine(src)
 	src.update_icon()
 	src.updateUsrDialog()
@@ -169,32 +171,3 @@ Thus, the two variables affect pump operation are set in New():
 /obj/machinery/atmospherics/binary/volume_pump/power_change()
 	..()
 	update_icon()
-
-
-
-/obj/machinery/atmospherics/binary/volume_pump/attackby(var/obj/item/weapon/W as obj, var/mob/user as mob)
-	if (!istype(W, /obj/item/weapon/wrench))
-		return ..()
-	if (!(stat & NOPOWER) && on)
-		user << "\red You cannot unwrench this [src], turn it off first."
-		return 1
-	var/turf/T = src.loc
-	if (level==1 && isturf(T) && T.intact)
-		user << "\red You must remove the plating first."
-		return 1
-	var/datum/gas_mixture/int_air = return_air()
-	var/datum/gas_mixture/env_air = loc.return_air()
-	if ((int_air.return_pressure()-env_air.return_pressure()) > 2*ONE_ATMOSPHERE)
-		user << "\red You cannot unwrench this [src], it too exerted due to internal pressure."
-		add_fingerprint(user)
-		return 1
-	playsound(get_turf(src), 'sound/items/Ratchet.ogg', 50, 1)
-	user << "\blue You begin to unfasten \the [src]..."
-	if (do_after(user, 40))
-		user.visible_message( \
-			"[user] unfastens \the [src].", \
-			"\blue You have unfastened \the [src].", \
-			"You hear ratchet.")
-		new /obj/item/pipe(loc, make_from=src)
-		del(src)
-

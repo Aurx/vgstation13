@@ -106,6 +106,7 @@
 	if(!signal.data["tag"] || (signal.data["tag"] != id_tag) || (signal.data["sigtype"]!="command"))
 		return 0
 
+	var/old_on=on
 	if("power" in signal.data)
 		on = text2num(signal.data["power"])
 
@@ -113,9 +114,9 @@
 		on = !on
 
 	if("set_output_pressure" in signal.data)
-		target_pressure = between(
-			0,
+		target_pressure = Clamp(
 			text2num(signal.data["set_output_pressure"]),
+			0,
 			ONE_ATMOSPHERE*50
 		)
 
@@ -127,7 +128,8 @@
 	spawn(2)
 		broadcast_status()
 	update_icon()
-	activity_log += text("\[[time_stamp()]\] Remote signal powered us [on ? "on" : "off"]")
+	if(old_on!=on)
+		investigation_log(I_ATMOS,"was powered [on ? "on" : "off"] by a remote signal")
 	return
 
 
@@ -147,10 +149,11 @@
 	if(..()) return
 	if(href_list["power"])
 		on = !on
-		activity_log += text("\[[time_stamp()]\] Real name: [], Key: [] - turned [] \the [].",usr.real_name, usr.key,(on ? "on" : "off"),src)
+		investigation_log(I_ATMOS,"was turned [on ? "on" : "off"] by [key_name(usr)]")
 	if(href_list["set_press"])
 		var/new_pressure = input(usr,"Enter new output pressure (0-4500kPa)","Pressure control",src.target_pressure) as num
 		src.target_pressure = max(0, min(4500, new_pressure))
+		investigation_log(I_ATMOS,"was set to [target_pressure] kPa by [key_name(usr)]")
 	usr.set_machine(src)
 	src.update_icon()
 	src.updateUsrDialog()
@@ -159,32 +162,3 @@
 /obj/machinery/atmospherics/binary/passive_gate/power_change()
 	..()
 	update_icon()
-
-
-
-/obj/machinery/atmospherics/binary/passive_gate/attackby(var/obj/item/weapon/W as obj, var/mob/user as mob)
-	if (!istype(W, /obj/item/weapon/wrench))
-		return ..()
-	if (on)
-		user << "\red You cannot unwrench this [src], turn it off first."
-		return 1
-	var/turf/T = src.loc
-	if (level==1 && isturf(T) && T.intact)
-		user << "\red You must remove the plating first."
-		return 1
-	var/datum/gas_mixture/int_air = return_air()
-	var/datum/gas_mixture/env_air = loc.return_air()
-	if ((int_air.return_pressure()-env_air.return_pressure()) > 2*ONE_ATMOSPHERE)
-		user << "\red You cannot unwrench this [src], it too exerted due to internal pressure."
-		add_fingerprint(user)
-		return 1
-	playsound(get_turf(src), 'sound/items/Ratchet.ogg', 50, 1)
-	user << "\blue You begin to unfasten \the [src]..."
-	if (do_after(user, 40))
-		user.visible_message( \
-			"[user] unfastens \the [src].", \
-			"\blue You have unfastened \the [src].", \
-			"You hear ratchet.")
-		new /obj/item/pipe(loc, make_from=src)
-		del(src)
-

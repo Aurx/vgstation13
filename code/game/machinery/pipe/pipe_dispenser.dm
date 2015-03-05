@@ -98,7 +98,8 @@
 		if(!wait)
 			var/p_type = text2num(href_list["make"])
 			var/p_dir = text2num(href_list["dir"])
-			var/obj/item/pipe/P = new (/*usr.loc*/ src.loc, pipe_type=p_type, dir=p_dir)
+			var/obj/item/pipe/P = getFromPool(/obj/item/pipe, get_turf(src)) //new (/*usr.loc*/ src.loc, pipe_type=p_type, dir=p_dir)
+			P.New(P.loc, pipe_type=p_type, dir=p_dir)
 			P.update()
 			P.add_fingerprint(usr)
 			wait = 1
@@ -123,7 +124,10 @@
 	if (istype(W, /obj/item/pipe) || istype(W, /obj/item/pipe_meter) || istype(W, /obj/item/pipe_gsensor))
 		usr << "\blue You put [W] back to [src]."
 		user.drop_item()
-		del(W)
+		if(istype(W, /obj/item/pipe))
+			returnToPool(W)
+		else
+			qdel(W)
 		return
 	else
 		return ..()
@@ -172,17 +176,17 @@ Nah
 */
 
 //Allow you to drag-drop disposal pipes into it
-/obj/machinery/pipedispenser/disposal/MouseDrop_T(var/obj/structure/disposalconstruct/pipe as obj, mob/usr as mob)
+/obj/machinery/pipedispenser/disposal/MouseDrop_T(var/obj/structure/disposalconstruct/pipe, mob/usr)
 	if(!usr.canmove || usr.stat || usr.restrained())
 		return
 
-	if (!istype(pipe) || get_dist(usr, src) > 1 || get_dist(src,pipe) > 1 )
+	if (!istype(pipe) || get_dist(usr, src) > 1 || get_dist(src,pipe) > 2 )
 		return
 
 	if (pipe.anchored)
 		return
 
-	del(pipe)
+	qdel(pipe)
 
 /obj/machinery/pipedispenser/disposal/attack_hand(user as mob)
 	if(..())

@@ -195,6 +195,11 @@ var/global/loopModeNames=list(
 			t += "<i>You cannot change the playlist.</i>"
 		t += "<br />"
 		if(current_song)
+			if(!playlist.len)
+				playlist=null
+				process()
+				if(!playlist || !playlist.len) return
+			else if(current_song > playlist.len) current_song = playlist.len
 			var/datum/song_info/song=playlist[current_song]
 			t += "<b>Current song:</b> [song.artist] - [song.title]<br />"
 		if(next_song)
@@ -229,6 +234,8 @@ var/global/loopModeNames=list(
 	return t
 
 /obj/machinery/media/jukebox/proc/ScreenSettings(var/mob/user)
+	if(!linked_account)
+		linked_account = station_account
 	var/dat={"<h1>Settings</h1>
 		<form action="?src=\ref[src]" method="get">
 		<input type="hidden" name="src" value="\ref[src]" />
@@ -473,7 +480,7 @@ var/global/loopModeNames=list(
 			return
 	if(playing)
 		var/datum/song_info/song
-		if(current_song)
+		if(current_song && playlist.len)
 			song = playlist[current_song]
 		if(!current_song || (song && world.time >= media_start_time + song.length))
 			current_song=1
@@ -496,6 +503,12 @@ var/global/loopModeNames=list(
 			update_music()
 
 /obj/machinery/media/jukebox/update_music()
+	if(!playlist)
+		process()
+		if(!playlist || !playlist.len)
+			return
+	if(current_song > playlist.len)
+		current_song = 0
 	if(current_song && playing)
 		var/datum/song_info/song = playlist[current_song]
 		media_url = song.url
@@ -542,6 +555,7 @@ var/global/loopModeNames=list(
 		"rock" = "Rock",
 		"muzak" = "Muzak",
 		"thunderdome" = "Thunderdome", // For thunderdome I guess
+		"beach" = "Beach",
 	)
 
 // So I don't have to do all this shit manually every time someone sacrifices pun-pun.
@@ -563,10 +577,11 @@ var/global/loopModeNames=list(
 		"rock" = "Rock",
 		"muzak" = "Muzak",
 
+		"beach" = "Beach",
+
 		"emagged" = "Syndie Mix",
 		"shuttle" = "Shuttle",
-		//"keygen" = "Keygen", // ONLY UNCOMMENT AFTER POMF REDUCES PLAYLIST SIZE OR YOU WILL CRASH THE ENTIRE GODDAMN SERVER.
-		
+
 		"endgame" = "Apocalypse",
 		"clockwork" = "Clockwork", // Unfinished new cult stuff
 		"thunderdome" = "Thunderdome", // For thunderdome I guess
